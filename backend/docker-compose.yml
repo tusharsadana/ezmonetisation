@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  monetization_db:
+    hostname: ${POSTGRES_HOST}
+    container_name: ${POSTGRES_HOST}
+    image: postgres:15.0
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -p $POSTGRES_PORT" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  rabbitmq:
+    container_name: rabbitmq_m
+    image: rabbitmq:3-management
+    volumes:
+      - ./data/rabbit:/data
+      - ./docker/config/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    container_name: redis_m
+    image: redis/redis-stack-server:6.2.6-v4
+    healthcheck:
+      test: [ "CMD", "redis-cli","ping" ]
+    environment:
+      REDISEARCH_ARGS: ${REDISEARCH_ARGS}
+
+networks:
+  default:
+    name: backend
+    driver: bridge

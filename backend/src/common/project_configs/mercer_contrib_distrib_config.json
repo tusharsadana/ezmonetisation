@@ -1,0 +1,540 @@
+{
+  "config_name": "Mercer Contribution Distribution config",
+  "available_document_types": [
+    "Capital call",
+    "Distributions",
+    "Capital call / Distributions",
+    "NAV"
+  ],
+  "available_currencies": [
+    "USD",
+    "EUR",
+    "GBP",
+    "CAD"
+  ],
+  "available_entity_type": [
+    {
+      "entity_name": "Fund Name",
+      "use_n_questions": 1,
+      "type": "fund_name",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Client Name",
+      "use_n_questions": 1,
+      "type": "client_name",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Document Date",
+      "use_n_questions": 1,
+      "type": "date",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Due Date",
+      "use_n_questions": 1,
+      "type": "date",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Initial Commitment",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Impact of Unfunded commitment",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Unfunded commitment (including notice)",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Unfunded commitment (before notice)",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Capital Call / Total contributions",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Cumulative Contributions (including notice)",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Partnership Investments",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": true
+    },
+    {
+      "entity_name": "Contributions: Tax",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": true
+    },
+    {
+      "entity_name": "Expenses",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": true
+    },
+    {
+      "entity_name": "Management Fees",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": true
+    },
+    {
+      "entity_name": "Fees",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": true
+    },
+    {
+      "entity_name": "Total Distributions",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Total non-recallable distributions",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Total recallable distributions",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Cumulative Distributions (including notice)",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Recyclable Capital",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": true
+    },
+    {
+      "entity_name": "Realized gain",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": true
+    },
+    {
+      "entity_name": "Distributions: Tax",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": true
+    },
+    {
+      "entity_name": "Interest",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": true
+    },
+    {
+      "entity_name": "Dividend",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": true
+    },
+    {
+      "entity_name": "Net Contribution / Net Distribution",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "NAV",
+      "use_n_questions": 1,
+      "type": "amount",
+      "is_multiple": false
+    },
+    {
+      "entity_name": "Quarter Date",
+      "use_n_questions": 1,
+      "type": "date",
+      "is_multiple": false
+    }
+  ],
+  "reconciliation": {
+    "NAV": {
+      "available_values": [
+        "Reconciled",
+        "Not reconciled"
+      ],
+      "default_value": "Not reconciled"
+    }
+  },
+  "entity_impact": {
+    "Capital Call / Total contributions": {
+      "available_impacts": [
+        "Decrease",
+        "Increase",
+        "No Impact",
+        "Calculate using sub-transactions"
+      ],
+      "default_impact": "Decrease"
+    },
+    "Total Distributions": {
+      "available_impacts": [
+        "No Impact",
+        "Calculate using sub-transactions"
+      ],
+      "default_impact": "No Impact"
+    },
+    "Total non-recallable distributions": {
+      "available_impacts": [
+        "No Impact",
+        "Calculate using sub-transactions"
+      ],
+      "default_impact": "No Impact"
+    },
+    "Total recallable distributions": {
+      "available_impacts": [
+        "Decrease",
+        "Increase",
+        "Calculate using sub-transactions"
+      ],
+      "default_impact": "Increase"
+    },
+    "Partnership Investments": {
+      "available_impacts": [
+        "Decrease",
+        "Increase",
+        "No Impact"
+      ],
+      "default_impact": "Decrease"
+    },
+    "Expenses": {
+      "available_impacts": [
+        "Decrease",
+        "Increase",
+        "No Impact"
+      ],
+      "default_impact": "Decrease"
+    },
+    "Management Fees": {
+      "available_impacts": [
+        "Decrease",
+        "Increase",
+        "No Impact"
+      ],
+      "default_impact": "Decrease"
+    },
+    "Fees": {
+      "available_impacts": [
+        "Decrease",
+        "Increase",
+        "No Impact"
+      ],
+      "default_impact": "Decrease"
+    },
+    "Recyclable Capital": {
+      "available_impacts": [
+        "Decrease",
+        "Increase",
+        "No Impact"
+      ],
+      "default_impact": "No Impact"
+    },
+    "Realized gain": {
+      "available_impacts": [
+        "Decrease",
+        "Increase",
+        "No Impact"
+      ],
+      "default_impact": "No Impact"
+    },
+    "Interest": {
+      "available_impacts": [
+        "Decrease",
+        "Increase",
+        "No Impact"
+      ],
+      "default_impact": "No Impact"
+    },
+    "Dividend": {
+      "available_impacts": [
+        "Decrease",
+        "Increase",
+        "No Impact"
+      ],
+      "default_impact": "No Impact"
+    },
+    "Distributions: Tax": {
+      "available_impacts": [
+        "Decrease",
+        "Increase",
+        "No Impact"
+      ],
+      "default_impact": "No Impact"
+    },
+    "Contributions: Tax": {
+      "available_impacts": [
+        "Decrease",
+        "Increase",
+        "No Impact"
+      ],
+      "default_impact": "No Impact"
+    }
+  },
+  "document_type_entity_type_map": {
+    "NAV": [
+      "Fund Name",
+      "Client Name",
+      "Document Date",
+      "Quarter Date",
+      "Unfunded commitment (including notice)",
+      "NAV"
+    ],
+    "Capital call": [
+      "Fund Name",
+      "Client Name",
+      "Document Date",
+      "Due Date",
+      "Initial Commitment",
+      "Impact of Unfunded commitment",
+      "Unfunded commitment (including notice)",
+      "Unfunded commitment (before notice)",
+      "Capital Call / Total contributions",
+      "Cumulative Contributions (including notice)",
+      "Partnership Investments",
+      "Contributions: Tax",
+      "Expenses",
+      "Management Fees",
+      "Fees"
+    ],
+    "Distributions": [
+      "Fund Name",
+      "Client Name",
+      "Document Date",
+      "Due Date",
+      "Initial Commitment",
+      "Impact of Unfunded commitment",
+      "Unfunded commitment (including notice)",
+      "Unfunded commitment (before notice)",
+      "Total Distributions",
+      "Total non-recallable distributions",
+      "Total recallable distributions",
+      "Cumulative Distributions (including notice)",
+      "Recyclable Capital",
+      "Realized gain",
+      "Distributions: Tax",
+      "Interest",
+      "Dividend"
+    ],
+    "Capital call / Distributions": [
+      "Fund Name",
+      "Client Name",
+      "Document Date",
+      "Due Date",
+      "Initial Commitment",
+      "Impact of Unfunded commitment",
+      "Unfunded commitment (before notice)",
+      "Unfunded commitment (including notice)",
+      "Capital Call / Total contributions",
+      "Cumulative Contributions (including notice)",
+      "Total Distributions",
+      "Net Contribution / Net Distribution",
+      "Total non-recallable distributions",
+      "Total recallable distributions",
+      "Cumulative Distributions (including notice)",
+      "Recyclable Capital",
+      "Realized gain",
+      "Partnership Investments",
+      "Distributions: Tax",
+      "Interest",
+      "Dividend",
+      "Expenses",
+      "Management Fees",
+      "Contributions: Tax",
+      "Fees"
+    ]
+  },
+  "entity_type_questions_map": {
+    "Fund Name": [
+      "What is a name of fund?",
+      "Fund name is ",
+      "What is name of Limited Partnership?",
+      "What is the name of the Fund / Limited Partnership?"
+    ],
+    "Client Name": [
+      "What is a Client / Plan name?",
+      "What is the name of limited partner?"
+    ],
+    "Document Date": [
+      "Which is notice date?",
+      "Which is issue date?",
+      "Which is document date?"
+    ],
+    "Due Date": [
+      "Which is due date for the capital call / distributions?",
+      "When money transfer should be done?",
+      "When your contributions / distributions should be transferred?"
+    ],
+    "Capital Call / Total contributions": [
+      "What is amount of the capital call / Total Contribution?",
+      "Your portion of capital call to be paid",
+      "Amount of Total Contributions is",
+      "What is amount of capital call / contributions (your portion)?"
+    ],
+    "Total Distributions": [
+      "Amount of distributions is?",
+      "Capital Distribution is?",
+      "Total Distributions are?",
+      "Total amount of distributions is?"
+    ],
+    "Net Contribution / Net Distribution": [
+      "What is a net contribution / net distributions or net amount due?",
+      "What is a net contribution / net distributions?",
+      "What is a net amount due?"
+    ],
+    "Total non-recallable distributions": [
+      "What is an amount Total Non-recallable Distribution?",
+      "What is total non-recallable distributions?",
+      "Amount of Non recallable distributions is?"
+    ],
+    "Total recallable distributions": [
+      "Total Recallable Distributions are?",
+      "Distributions subject to recall is?",
+      "Distributions (recallable) is?",
+      "What is an amount od Total Recallable Distributions?"
+    ],
+    "Impact of Unfunded commitment": [
+      "Amount of impact on Unfunded Commitment?",
+      "Amount of impact on remaining commitment?",
+      "Difference between remaining commitment prior to current notice and after notice?",
+      "Delta / impact between remaining commitment prior to current notice and after notice?",
+      "Delta / impact between remaining commitment prior to current notice and including the notice?",
+      "Amount of impact on Remaining Commitment is?"
+    ],
+    "Unfunded commitment (including notice)": [
+      "What is amount of remaining / unfunded commitment?",
+      "What is amount of remaining / unfunded commitment including current notice?",
+      "What is amount of unpaid capital commitment?",
+      "Remaining Commitment (including current notice) is?",
+      "Total Remaining Commitment is (including current notice)?",
+      "Unfunded Commitment is (including current notice)?",
+      "Total Unfunded Commitment is?",
+      "Uncalled commitment amount is?",
+      "Unused Capital Commitment?"
+    ],
+    "Initial Commitment": [
+      "Amount of Capital Commitment of Limited Partner?",
+      "Limited Partner portion in Fund?",
+      "Capital Commitment of Limited Partner in Fund?",
+      "Which is a portion of Limited Partner in Fund?",
+      "Which is a portion of L.P. in Fund?",
+      "Amount of initial subscription one Limited Partner?"
+    ],
+    "Unfunded commitment (before notice)": [
+      "What is amount of remaining / unfunded commitment prior to current notice?",
+      "What is amount of remaining / unfunded commitment efore current notice?",
+      "What is amount of unpaid capital commitment?",
+      "Remaining Commitment is (before current notice)?",
+      "Remaining Commitment (prior current notice) is?",
+      "Unused Capital Commitment prior current notice is?"
+    ],
+    "Recyclable Capital": [
+      "Which is an amount of Recyclable Capital?",
+      "Which is an amount of Returning Capital?",
+      "Which is an amount of Return of Capital?"
+    ],
+    "Realized gain": [
+      "Which is an amount of released gain?",
+      "Amount of Realized gain is?"
+    ],
+    "Partnership Investments": [
+      "Amount of Partnership Investments is?",
+      "Which is Limited partner Investments portion?",
+      "Which is the amount of Investments in current contributions?",
+      "Which is the amount of investments (L.P share)?"
+    ],
+    "Contributions: Tax": [
+      "Amount of Taxes is?",
+      "Amount of Taxes in current Contributions / Distribution notice is?",
+      "Which is tax amount?"
+    ],
+    "Distributions: Tax": [
+      "Amount of Taxes is?",
+      "Amount of Taxes in current Contributions / Distribution notice is?",
+      "Which is tax amount?"
+    ],
+    "Expenses": [
+      "Total amount of expenses is?",
+      "Which is Expenses amount?",
+      "Amount of Expenses in current Contributions / Distribution notice is?",
+      "Placement / Partnership / Operational Expenses amount is?",
+      "Operational / Feeder Fund / Blocker Expenses amount is?"
+    ],
+    "Management Fees": [
+      "Management Fees amount is ?",
+      "Amount of Management Fees is?",
+      "(Net) amount of Management Fees are?"
+    ],
+    "Interest": [
+      "Which is an amount of Interest?",
+      "Portfolio Interest Income is?",
+      "Interest Income is?"
+    ],
+    "Dividend": [
+      "Which is an amount of Dividend?",
+      "Dividend Reinvestment is?",
+      "Reinvestment Dividend is?",
+      "Total Dividend amount is?",
+      "Cash From Operations (Dividend) is?",
+      "Amount of Distributions from Dividend is?"
+    ],
+    "Fees": [
+      "Amount of Fees is?",
+      "Amount of Non-management Fees is?"
+    ],
+    "Cumulative Contributions (including notice)": [
+      "Limited Partner Total Contributions (including current notice) is",
+      "LP total contribution (including notice) is",
+      "Limited Partner contributions (after notice) is",
+      "Limited Partner Total Contributions (after notice) is",
+      "L.P. total contribution (including current notice) is"
+    ],
+    "Cumulative Distributions (including notice)": [
+      "Limited Partner Total Distributions (including notice) is",
+      "LP total distributions (after notice) is",
+      "Limited Partner distributions (after notice) is",
+      "Limited Partner Total Contributions (including notice) is",
+      "L.P. total distributions (including current notice) is"
+    ],
+    "NAV": [
+      "Ending Partner's Capital for current period is?",
+      "Ending Partner's Capital / NAV / Capital Account Statement is?",
+      "Capital Balance is ?",
+      "Amount of Ending Partner's Capital is ?",
+      "Capital Account Statement is?",
+      "Ending Balance is?",
+      "Ending Balance since inception is?"
+    ],
+    "Quarter Date": [
+      "End date of current quarter / period?",
+      "End date of quarter?"
+    ]
+  }
+}
