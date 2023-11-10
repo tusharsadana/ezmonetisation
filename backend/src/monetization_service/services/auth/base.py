@@ -10,7 +10,6 @@ from redis.exceptions import ConnectionError
 # project
 from src.monetization_service.core.redis import Redis, get_redis_client
 from src.monetization_service.schemas.api.v1.auth import Token
-from src.monetization_service.schemas.common_enums import PERMISSIONS_PER_ROLE
 from src.monetization_service.services.auth.jwt import (
     JWTService,
     get_jwt_service,
@@ -189,8 +188,7 @@ class BaseAuth:
 
         access, refresh = await self.generate_token_pair(
             email=refresh_decoded.email,
-            role=refresh_decoded.role,
-            permissions=PERMISSIONS_PER_ROLE[refresh_decoded.role],
+            role=refresh_decoded.user_type,
         )
         # putting in redis
         if access != access_token:

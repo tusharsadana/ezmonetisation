@@ -1,5 +1,5 @@
 # thirdparty
-from sqlalchemy import Boolean, Column, String
+from sqlalchemy import Boolean, Column, String, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import PasswordType
 
@@ -32,8 +32,8 @@ class User(TimeMixin, Base):
         nullable=True,
     )
 
-    role_name = Column(
-        String, comment="Name of role", nullable=False, default="member"
+    user_type = Column(
+        Integer, comment="User Type", nullable=False, default="1"
     )
 
     is_active = Column(

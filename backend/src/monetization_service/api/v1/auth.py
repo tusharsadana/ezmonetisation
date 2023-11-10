@@ -13,10 +13,6 @@ from src.monetization_service.schemas.api.v1.auth import (
     UserSchema,
     UserSignUp
 )
-from src.monetization_service.schemas.common_enums import (
-    PERMISSIONS_PER_ROLE,
-    RoleName,
-)
 from src.monetization_service.services.auth import SamlAuth, UserListAuth
 from src.monetization_service.services.auth.utils import (
     Authorized,
@@ -83,8 +79,7 @@ async def sign_in(
     results: UserSchema
     access, refresh = await auth_service.generate_token_pair(
         email=results.email,
-        role=results.role,
-        permissions=PERMISSIONS_PER_ROLE[results.role],
+        role=results.user_type,
     )
 
     return TokenPair(access=access, refresh=refresh)
@@ -172,7 +167,7 @@ async def refresh_tokens(
 
 
 @auth_router.post(
-    "/reset-password", dependencies=[Depends(Authorized(RoleName.ADMIN))]
+    "/reset-password", dependencies=[Depends(Authorized(0))]
 )
 async def reset_password(
     payload: ResetPassword,

@@ -8,7 +8,6 @@ from starlette.requests import Request
 
 # project
 from src.monetization_service.schemas.api.v1.auth import Token
-from src.monetization_service.schemas.common_enums import RoleName
 from src.monetization_service.services.auth.base import BaseAuth
 from src.monetization_service.services.auth.saml import SamlAuth
 from src.monetization_service.services.auth.user_list import UserListAuth
@@ -75,7 +74,7 @@ class Authenticated:
 class Authorized(Authenticated):
     """Dependency for endpoints that require authorization"""
 
-    def __init__(self, *roles: RoleName):
+    def __init__(self, *roles: int):
         self.roles = roles
 
     async def __call__(
@@ -93,7 +92,7 @@ class Authorized(Authenticated):
         )
         # logging.info("Authorization")
         # if user role is not in allowed roles list raise 403
-        if payload.role in self.roles:
+        if payload.user_type in self.roles:
             return validated, payload
         else:
 

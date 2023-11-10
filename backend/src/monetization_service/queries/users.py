@@ -15,9 +15,9 @@ def update_user_password(username: str, password: str) -> Update:
     return query
 
 
-def add_new_user_query(username: str, password: str, role: str, first_name: str, last_name: str) -> Insert:
+def add_new_user_query(username: str, password: str, user_type: int, first_name: str, last_name: str) -> Insert:
     query = insert(User).values(
-        {"email": username, "password": password, "role_name": role, "first_name": first_name, "last_name": last_name}
+        {"email": username, "password": password, "user_type": user_type, "first_name": first_name, "last_name": last_name}
     )
 
     return query

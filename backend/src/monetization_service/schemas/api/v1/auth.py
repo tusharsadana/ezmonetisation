@@ -7,7 +7,6 @@ from pydantic import EmailStr, Field
 
 # project
 from src.common.schemas.base import BaseModel
-from src.monetization_service.schemas.common_enums import RoleName
 
 
 class TokenType(str, enum.Enum):
@@ -27,8 +26,8 @@ class ResetPassword(BaseModel):
 
 class TokenClaims(BaseModel):
     email: str | None = Field(title="user email", alias="Email ID")
-    role: RoleName | None = Field(
-        title="List of user roles", default=RoleName.MEMBER
+    user_type: int | None = Field(
+        title="List of user roles", default=1
     )
 
     class Config:
@@ -45,7 +44,6 @@ class UserSchema(TokenClaims):
 
 class Token(TokenClaims):
     expiration: datetime = Field(title="Token lifetime", alias="exp")
-    permissions: list[str] | None
 
 
 class TokenPair(BaseModel):

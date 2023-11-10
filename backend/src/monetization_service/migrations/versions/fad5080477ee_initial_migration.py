@@ -24,7 +24,7 @@ def upgrade() -> None:
     sa.Column('email', sa.String(), nullable=False, comment='Email of user'),
     sa.Column('first_name', sa.String(), nullable=True, comment='First Name of user'),
     sa.Column('last_name', sa.String(), nullable=True, comment='Last Name of user'),
-    sa.Column('role_name', sa.String(), nullable=False, comment='Name of role'),
+    sa.Column('user_type', sa.Integer(), nullable=False, comment='User Type'),
     sa.Column('is_active', sa.Boolean(), nullable=False, comment='Is this user active or not'),
     sa.Column('password', sqlalchemy_utils.types.password.PasswordType(), nullable=True),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False, comment='Creation date'),
