@@ -49,5 +49,9 @@ class User(TimeMixin, Base):
         ),
         nullable=True,
     )
+    channel = relationship("Channel")
+    video = relationship("Video")
+    watch_hour_earn = relationship("WatchHourEarn")
+    subscriber_earn = relationship("SubscriberEarn")
 
 

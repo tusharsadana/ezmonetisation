@@ -26,6 +26,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 from src.monetization_service.core.db import SQLALCHEMY_URL  # noqa
 from src.monetization_service.models.user import *  # noqa
+from src.monetization_service.models.channel import *  # noqa
 
 target_metadata = Base.metadata  # noqa
 
