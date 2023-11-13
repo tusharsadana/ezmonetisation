@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 channel_router = APIRouter(
     prefix="/channel",
     tags=["Channel"],
-    dependencies=[Depends(Authorized(0, 1, 2))],
+    # dependencies=[Depends(Authorized(0, 1, 2))],
 )
 
 
@@ -35,6 +35,38 @@ async def add_channel(
 ):
     is_created, message = await service.add_channel(session, payload)
     if is_created:
+        return ORJSONResponse(
+            {"message": message}, status_code=status.HTTP_201_CREATED
+        )
+    return ORJSONResponse(
+            {"message": message}, status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@channel_router.get("/{username}")
+async def get_channel_list(
+    username: str,
+    service: ChannelService = Depends(get_channel_service),
+    session: AsyncSession = Depends(get_session),
+):
+    is_valid, data = await service.get_channel_list(session, username)
+    if is_valid:
+        return ORJSONResponse(
+            data, status_code=status.HTTP_200_OK
+        )
+    return ORJSONResponse(
+            {"message": data}, status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@channel_router.put("/{channel_id}")
+async def select_channel(
+    channel_id: UUID,
+    service: ChannelService = Depends(get_channel_service),
+    session: AsyncSession = Depends(get_session),
+):
+    is_updated, message = await service.select_channel(session, channel_id)
+    if is_updated:
         return ORJSONResponse(
             {"message": message}, status_code=status.HTTP_200_OK
         )

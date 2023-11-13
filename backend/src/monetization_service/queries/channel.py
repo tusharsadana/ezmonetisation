@@ -41,3 +41,38 @@ def deselect_channels(username: str):
         .values(is_selected=False)
     )
     return query
+
+
+def select_channel(channel_id: UUID):
+    query = (
+        update(Channel)
+        .where(Channel.id == channel_id)
+        .values(is_selected=True)
+    )
+    return query
+
+
+def get_channel_list(username: str):
+    query = (
+        select(
+            func.json_agg(
+                func.json_build_object(
+                    'id', Channel.id,
+                    'channel_name', Channel.channel_name,
+                    'channel_link', Channel.channel_link,
+                    'is_selected', Channel.is_selected
+                )
+            ).label('channels')
+        )
+        .filter(Channel.user_email == username)
+        .group_by(Channel.user_email)
+    )
+    return query
+
+
+def channel_isvalid(channel_id: UUID):
+    query = (
+        select(Channel.user_email)
+        .where(Channel.id == channel_id)
+    )
+    return query
