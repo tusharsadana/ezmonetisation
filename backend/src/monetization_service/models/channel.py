@@ -36,7 +36,7 @@ class Video(IdMixin, TimeMixin, Base):
 
     __tablename__ = "video"
 
-    user = relationship("User", back_populates="channel")
+    user = relationship("User", back_populates="video")
     user_email = Column(
         String,
         ForeignKey("user.email"),

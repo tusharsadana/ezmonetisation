@@ -1,8 +1,13 @@
 # thirdparty
-from sqlalchemy import Insert, Update, insert, update
+from sqlalchemy import Insert, Update, insert, update, select
 
 # project
 from src.monetization_service.models.user import User
+
+
+def user_exists(username: str):
+    query = select(User).where(User.email == username)
+    return query
 
 
 def update_user_password(username: str, password: str) -> Update:
