@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 channel_router = APIRouter(
     prefix="/channel",
     tags=["Channel"],
-    # dependencies=[Depends(Authorized(0, 1, 2))],
+    dependencies=[Depends(Authorized(0, 1, 2))],
 )
 
 
