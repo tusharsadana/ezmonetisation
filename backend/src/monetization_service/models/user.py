@@ -53,5 +53,7 @@ class User(TimeMixin, Base):
     video = relationship("Video")
     watch_hour_earn = relationship("WatchHourEarn")
     subscriber_earn = relationship("SubscriberEarn")
+    watch_hour_credit = relationship("WatchHourCredit")
+    subscriber_credit = relationship("SubscriberCredit")
 
 
