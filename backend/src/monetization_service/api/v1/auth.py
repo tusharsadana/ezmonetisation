@@ -37,7 +37,7 @@ async def sign_up(
     if is_created:
         return ORJSONResponse(content={"description": "New account created successfully"},
                               status_code=status.HTTP_200_OK)
-    return ORJSONResponse(content={"description": "Account with the given username already exists"},
+    return ORJSONResponse(content={"description": "Account with the given user_email already exists"},
                           status_code=status.HTTP_400_BAD_REQUEST)
 
 
@@ -62,13 +62,13 @@ async def sign_in(
     Endpoint for sign in
 
     Request body:
-    **username** - Username
+    **user_email** - UserEmail
     **password** - Password
 
     Current mapping of roles:
     """
     check, results = await auth_service.login(
-        email=auth_input.username, password=auth_input.password
+        email=auth_input.user_email, password=auth_input.password
     )
     if not check:
         return Response(
@@ -174,9 +174,9 @@ async def reset_password(
     auth_service: UserListAuth = Depends(get_user_list_auth),
 ):
     is_reset, new_password = await auth_service.reset_password(
-        payload.username, payload.length
+        payload.user_email, payload.length
     )
     if is_reset:
-        await auth_service.drop_token(payload.username)
+        await auth_service.drop_token(payload.user_email)
         return {"new-password": new_password}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

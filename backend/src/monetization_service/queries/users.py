@@ -2,27 +2,36 @@
 from sqlalchemy import Insert, Update, insert, update, select
 
 # project
-from src.monetization_service.models.user import User
+from src.monetization_service.models.user import User, UserTypeConstants
 
 
-def user_exists(username: str):
-    query = select(User).where(User.email == username)
+def user_exists(user_email: str):
+    query = select(User).where(User.email == user_email)
     return query
 
 
-def update_user_password(username: str, password: str) -> Update:
+def update_user_password(user_email: str, password: str) -> Update:
     query = (
         update(User)
         .values({"password": password})
-        .where(User.is_active.is_(True), User.email == username)
+        .where(User.is_active.is_(True), User.email == user_email)
     )
 
     return query
 
 
-def add_new_user_query(username: str, password: str, user_type: int, first_name: str, last_name: str) -> Insert:
+def add_new_user_query(user_email: str, password: str, user_type: int, first_name: str, last_name: str) -> Insert:
     query = insert(User).values(
-        {"email": username, "password": password, "user_type": user_type, "first_name": first_name, "last_name": last_name}
+        {"email": user_email, "password": password, "user_type": user_type, "first_name": first_name, "last_name": last_name}
     )
 
+    return query
+
+
+def user_ratio(user_email: str):
+    query = (
+        select(UserTypeConstants.watch_hour_ratio, UserTypeConstants.subscriber_ratio)
+        .join(User, User.user_type == UserTypeConstants.user_type_id)
+        .where(User.email == user_email)
+    )
     return query

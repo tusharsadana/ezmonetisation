@@ -43,13 +43,13 @@ async def add_channel(
         )
 
 
-@channel_router.get("/{username}/get-channel-list")
+@channel_router.get("/{user_email}/get-channel-list")
 async def get_channel_list(
-    username: str,
+    user_email: str,
     service: ChannelService = Depends(get_channel_service),
     session: AsyncSession = Depends(get_session),
 ):
-    is_valid, data = await service.get_channel_list(session, username)
+    is_valid, data = await service.get_channel_list(session, user_email)
     if is_valid:
         return ORJSONResponse(
             data, status_code=status.HTTP_200_OK

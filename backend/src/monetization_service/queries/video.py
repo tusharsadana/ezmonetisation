@@ -31,10 +31,10 @@ def add_video(video_data: list[dict]) -> Insert:
     return query
 
 
-def deselect_videos(username: str):
+def deselect_videos(user_email: str):
     query = (
         update(Video)
-        .where(Video.user_email == username)
+        .where(Video.user_email == user_email)
         .values(is_active=False)
     )
     return query
@@ -49,7 +49,7 @@ def activate_videos(video_ids: list[UUID]):
     return query
 
 
-def get_video_list(username: str):
+def get_video_list(user_email: str):
     query = (
         select(
             func.json_agg(
@@ -60,7 +60,7 @@ def get_video_list(username: str):
                 )
             ).label('channels')
         )
-        .filter(Video.user_email == username)
+        .filter(Video.user_email == user_email)
         .group_by(Video.user_email)
     )
     return query
@@ -69,6 +69,17 @@ def get_video_list(username: str):
 def video_isvalid(data: VideoSelectIn):
     query = (
         select(func.count())
-        .where(and_(Video.id.in_(data.video_ids), Video.user_email == data.username))
+        .where(and_(Video.id.in_(data.video_ids), Video.user_email == data.user_email))
     )
     return query
+
+
+def video_exists(video_id: UUID):
+    query = (
+        select(Video.user_email)
+        .where(Video.id == video_id)
+    )
+    return query
+
+
+

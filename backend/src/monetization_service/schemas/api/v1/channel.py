@@ -14,7 +14,7 @@ from src.common.schemas.base import BaseModel
 
 
 class ChannelIn(BaseModel):
-    username: constr(strip_whitespace=True, min_length=1)
+    user_email: constr(strip_whitespace=True, min_length=1)
     channel_name: constr(strip_whitespace=True, min_length=1)
     channel_link: constr(
         strip_whitespace=True, min_length=1,)
@@ -34,10 +34,4 @@ class ChannelIn(BaseModel):
         orm_mode = True
 
 
-"""
-User type
-0 is Super Admin
-1 is Free User
-2 is Premium User
-3 and so on can be other categories if and whenever added
-"""
+

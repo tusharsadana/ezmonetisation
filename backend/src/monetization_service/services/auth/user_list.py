@@ -64,16 +64,16 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
         )
         return "".join(new_password)
 
-    async def drop_token(self, username: str):
-        await self.delete_secret(username)
+    async def drop_token(self, user_email: str):
+        await self.delete_secret(user_email)
 
     async def reset_password(
-        self, username: str, length: int = 10
+        self, user_email: str, length: int = 10
     ) -> (bool, str | None):
         new_password = self.__generate_new_password(length=length)
         async with get_session_cm() as session:
             session: AsyncSession
-            query = update_user_password(username, new_password)
+            query = update_user_password(user_email, new_password)
             try:
                 result = await session.execute(query)
             except IntegrityError:
@@ -91,7 +91,7 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
     ) -> bool:
         async with get_session_cm() as session:
             session: AsyncSession
-            query = add_new_user_query(user_data.username, user_data.password, 1, user_data.first_name,
+            query = add_new_user_query(user_data.user_email, user_data.password, 1, user_data.first_name,
                                        user_data.last_name)
             try:
                 result = await session.execute(query)

@@ -14,7 +14,7 @@ from src.common.schemas.base import BaseModel
 
 
 class VideoIn(BaseModel):
-    username: constr(strip_whitespace=True, min_length=1)
+    user_email: constr(strip_whitespace=True, min_length=1)
     video_links: List[constr(strip_whitespace=True, min_length=1)]
 
     @validator("video_links")
@@ -32,8 +32,17 @@ class VideoIn(BaseModel):
 
 
 class VideoSelectIn(BaseModel):
-    username: constr(strip_whitespace=True, min_length=1)
+    user_email: constr(strip_whitespace=True, min_length=1)
     video_ids: List[UUID]
+
+    class Config:
+        orm_mode = True
+
+
+class VideoCompIn(BaseModel):
+    user_email: constr(strip_whitespace=True, min_length=1)
+    video_id: UUID
+    video_duration: float
 
     class Config:
         orm_mode = True

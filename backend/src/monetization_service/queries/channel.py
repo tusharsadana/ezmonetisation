@@ -23,7 +23,7 @@ def add_channel(channel_data: ChannelIn) -> Insert:
     query = (
         insert(Channel)
         .values(
-            user_email=channel_data.username,
+            user_email=channel_data.user_email,
             channel_name=channel_data.channel_name,
             channel_link=channel_data.channel_link,
             is_selected=True
@@ -34,10 +34,10 @@ def add_channel(channel_data: ChannelIn) -> Insert:
     return query
 
 
-def deselect_channels(username: str):
+def deselect_channels(user_email: str):
     query = (
         update(Channel)
-        .where(Channel.user_email == username)
+        .where(Channel.user_email == user_email)
         .values(is_selected=False)
     )
     return query
@@ -52,7 +52,7 @@ def select_channel(channel_id: UUID):
     return query
 
 
-def get_channel_list(username: str):
+def get_channel_list(user_email: str):
     query = (
         select(
             func.json_agg(
@@ -64,7 +64,7 @@ def get_channel_list(username: str):
                 )
             ).label('channels')
         )
-        .filter(Channel.user_email == username)
+        .filter(Channel.user_email == user_email)
         .group_by(Channel.user_email)
     )
     return query

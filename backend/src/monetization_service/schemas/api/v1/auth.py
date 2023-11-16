@@ -15,12 +15,12 @@ class TokenType(str, enum.Enum):
 
 
 class AuthInput(BaseModel):
-    username: str = Field(title="Email")
+    user_email: str = Field(title="Email")
     password: str = Field(title="Password")
 
 
 class ResetPassword(BaseModel):
-    username: EmailStr = Field(title="Email")
+    user_email: EmailStr = Field(title="Email")
     length: int = Field(title="length", ge=8, le=100, default=10)
 
 

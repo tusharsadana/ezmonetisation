@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 # project
 from src.monetization_service.core.db import get_session
-from src.monetization_service.schemas.api.v1.video import VideoIn, VideoSelectIn
+from src.monetization_service.schemas.api.v1.video import VideoIn, VideoSelectIn, VideoCompIn
 from src.monetization_service.services.auth import Authorized
 
 from src.monetization_service.services.video.video import (
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 video_router = APIRouter(
     prefix="/video",
     tags=["Video"],
-    dependencies=[Depends(Authorized(0, 1, 2))],
+    # dependencies=[Depends(Authorized(0, 1, 2))],
 )
 
 
@@ -43,13 +43,13 @@ async def add_video(
         )
 
 
-@video_router.get("/{username}/get-video-list")
+@video_router.get("/{user_email}/get-video-list")
 async def get_video_list(
-    username: str,
+    user_email: str,
     service: VideoService = Depends(get_video_service),
     session: AsyncSession = Depends(get_session),
 ):
-    is_valid, data = await service.get_video_list(session, username)
+    is_valid, data = await service.get_video_list(session, user_email)
     if is_valid:
         return ORJSONResponse(
             data, status_code=status.HTTP_200_OK
@@ -66,6 +66,22 @@ async def activate_videos(
     session: AsyncSession = Depends(get_session),
 ):
     is_updated, message = await service.activate_videos(session, payload)
+    if is_updated:
+        return ORJSONResponse(
+            {"message": message}, status_code=status.HTTP_200_OK
+        )
+    return ORJSONResponse(
+            {"message": message}, status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@video_router.post("/video_completion")
+async def video_completion(
+    payload: VideoCompIn,
+    service: VideoService = Depends(get_video_service),
+    session: AsyncSession = Depends(get_session),
+):
+    is_updated, message = await service.complete_video(session, payload)
     if is_updated:
         return ORJSONResponse(
             {"message": message}, status_code=status.HTTP_200_OK

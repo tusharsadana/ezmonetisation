@@ -1,11 +1,11 @@
 # thirdparty
-from sqlalchemy import Boolean, Column, String, Integer
+from sqlalchemy import Boolean, Column, String, Integer, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import PasswordType
 
 # project
 from src.monetization_service.core.db import Base
-from src.monetization_service.models.mixins import TimeMixin
+from src.monetization_service.models.mixins import TimeMixin, IdMixin
 
 
 class User(TimeMixin, Base):
@@ -32,8 +32,13 @@ class User(TimeMixin, Base):
         nullable=True,
     )
 
+    user_type_constants = relationship("UserTypeConstants", back_populates="user")
     user_type = Column(
-        Integer, comment="User Type", nullable=False, default="1"
+        Integer,
+        ForeignKey("user_type_constants.user_type_id"),
+        comment="User Type",
+        nullable=False,
+        default=1
     )
 
     is_active = Column(
@@ -57,3 +62,32 @@ class User(TimeMixin, Base):
     subscriber_credit = relationship("SubscriberCredit")
 
 
+class UserTypeConstants(IdMixin, TimeMixin, Base):
+    """Table for storing user type constants"""
+
+    __tablename__ = "user_type_constants"
+
+    user_type_id = Column(
+        Integer,
+        comment="User Type ID",
+        nullable=False,
+        unique=True,
+    )
+    user_type_name = Column(
+        String,
+        comment="User Type name",
+        nullable=True,
+    )
+    watch_hour_ratio = Column(
+        Float,
+        comment="Watch Hour Ratio",
+        nullable=False,
+        default=1
+    )
+    subscriber_ratio = Column(
+        Float,
+        comment="Subscriber Ratio",
+        nullable=False,
+        default=1
+    )
+    user = relationship("User")

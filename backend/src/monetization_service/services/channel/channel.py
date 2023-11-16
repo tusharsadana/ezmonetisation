@@ -14,12 +14,12 @@ class ChannelService:
 
     @staticmethod
     async def add_channel(session: AsyncSession, data: ChannelIn):
-        query = user_exists(data.username)
+        query = user_exists(data.user_email)
         result = await session.execute(query)
         result = result.one_or_none()
         if not result:
-            return False, "Invalid username"
-        query = deselect_channels(data.username)
+            return False, "Invalid user_email"
+        query = deselect_channels(data.user_email)
         await session.execute(query)
         query = add_channel(data)
         result = await session.execute(query)
@@ -31,13 +31,13 @@ class ChannelService:
             return False, "Error"
 
     @staticmethod
-    async def get_channel_list(session: AsyncSession, username:str):
-        query = user_exists(username)
+    async def get_channel_list(session: AsyncSession, user_email: str):
+        query = user_exists(user_email)
         result = await session.execute(query)
         result = result.one_or_none()
         if not result:
-            return False, "Invalid username"
-        query = get_channel_list(username)
+            return False, "Invalid user_email"
+        query = get_channel_list(user_email)
         result = await session.execute(query)
         result = result.all()
         if result:
