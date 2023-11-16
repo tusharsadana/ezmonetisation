@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 video_router = APIRouter(
     prefix="/video",
     tags=["Video"],
-    # dependencies=[Depends(Authorized(0, 1, 2))],
+    dependencies=[Depends(Authorized(0, 1, 2))],
 )
 
 
