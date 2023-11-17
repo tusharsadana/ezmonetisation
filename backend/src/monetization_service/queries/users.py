@@ -1,12 +1,12 @@
 # thirdparty
-from sqlalchemy import Insert, Update, insert, update, select
+from sqlalchemy import Insert, Update, insert, update, select, and_
 
 # project
 from src.monetization_service.models.user import User, UserTypeConstants
 
 
 def user_exists(user_email: str):
-    query = select(User).where(User.email == user_email)
+    query = select(User).where(and_(User.email == user_email, User.is_active))
     return query
 
 
@@ -31,6 +31,15 @@ def add_new_user_query(user_email: str, password: str, user_type: int, first_nam
 def user_ratio(user_email: str):
     query = (
         select(UserTypeConstants.watch_hour_ratio, UserTypeConstants.subscriber_ratio)
+        .join(User, User.user_type == UserTypeConstants.user_type_id)
+        .where(User.email == user_email)
+    )
+    return query
+
+
+def user_num(user_email: str):
+    query = (
+        select(UserTypeConstants.fetch_video, UserTypeConstants.fetch_channel)
         .join(User, User.user_type == UserTypeConstants.user_type_id)
         .where(User.email == user_email)
     )

@@ -75,6 +75,23 @@ async def activate_videos(
         )
 
 
+@video_router.get("/fetch-videos")
+async def fetch_videos(
+    user_email: str,
+    number_of_videos: int,
+    service: VideoService = Depends(get_video_service),
+    session: AsyncSession = Depends(get_session),
+):
+    success, data = await service.fetch_videos(session, user_email, number_of_videos)
+    if success:
+        return ORJSONResponse(
+            data, status_code=status.HTTP_200_OK
+        )
+    return ORJSONResponse(
+            {"message": data}, status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+
 @video_router.post("/video_completion")
 async def video_completion(
     payload: VideoCompIn,
@@ -89,3 +106,4 @@ async def video_completion(
     return ORJSONResponse(
             {"message": message}, status_code=status.HTTP_400_BAD_REQUEST
         )
+

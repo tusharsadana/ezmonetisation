@@ -4,10 +4,10 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.monetization_service.queries.table import insert_to_table_by_model
-from src.monetization_service.queries.users import user_exists, user_ratio
+from src.monetization_service.queries.users import user_exists, user_ratio, user_num
 from src.monetization_service.schemas.api.v1.video import VideoIn, VideoSelectIn, VideoCompIn
 from src.monetization_service.queries.video import (
-    add_video, deselect_videos, get_video_list, video_isvalid, activate_videos, video_exists,
+    add_video, deselect_videos, get_video_list, video_isvalid, activate_videos, video_exists, fetch_videos
 )
 from src.monetization_service.queries.credit import user_in_watch_credit, update_watch_credit
 from src.monetization_service.models.channel import WatchHourCredit, WatchHourEarn
@@ -53,6 +53,8 @@ class VideoService:
         result = result.one_or_none()
         if not result:
             return False, "Invalid user_email"
+        if len(payload.video_ids) > 10:
+            return False, "No more than 10 videos can be active at a time"
         query = video_isvalid(payload)
         result = await session.execute(query)
         result = result.all()
@@ -83,15 +85,11 @@ class VideoService:
             return False, "Invalid video_id"
         user_v = result[0]
 
-        query = user_ratio(user_v)
-        result = await session.execute(query)
-        user_v_ratio = result.one_or_none()
-
         query = user_ratio(user_w)
         result = await session.execute(query)
         user_w_ratio = result.one_or_none()
 
-        user_v_credit = -1*payload.video_duration*user_v_ratio[0]
+        user_v_credit = -1*payload.video_duration
         user_w_credit = payload.video_duration*user_w_ratio[0]
 
         query = user_in_watch_credit(user_v)
@@ -129,6 +127,36 @@ class VideoService:
         await session.commit()
 
         return True, "Video completed successfully"
+
+    @staticmethod
+    async def fetch_videos(session: AsyncSession, user_email: str, num: int):
+        query = user_exists(user_email)
+        result = await session.execute(query)
+        result = result.one_or_none()
+        if not result:
+            return False, "Invalid user_email"
+
+        query = user_num(user_email)
+        result = await session.execute(query)
+        vid_num_limit = result.one_or_none()
+        if vid_num_limit[0] < num:
+            return False, f"Number of videos to be fetched cannot be more than {vid_num_limit[0]}"
+
+        query = fetch_videos(user_email, num)
+        result = await session.execute(query)
+        result = result.all()
+        result_dict = {}
+        counter = 0
+        for item in result:
+            uuid, url, email = item
+            if email not in result_dict:
+                result_dict[email] = item
+                counter += 1
+                if counter == num:
+                    break
+        result_list = list(result_dict.values())
+        data = [{"video_id": str(uid), "video_link": link} for uid, link, email in result_list]
+        return True, data
 
 
 @cache

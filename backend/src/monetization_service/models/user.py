@@ -90,4 +90,16 @@ class UserTypeConstants(IdMixin, TimeMixin, Base):
         nullable=False,
         default=1
     )
+    fetch_video = Column(
+        Integer,
+        comment="No. of videos that can be fetched by the user type",
+        nullable=False,
+        default=1
+    )
+    fetch_channel = Column(
+        Integer,
+        comment="No. of channels that can be fetched by the user type",
+        nullable=False,
+        default=1
+    )
     user = relationship("User")
