@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 # project
 from src.monetization_service.core.db import get_session
-from src.monetization_service.schemas.api.v1.channel import ChannelIn
+from src.monetization_service.schemas.api.v1.channel import ChannelIn, ChannelSubIn
 from src.monetization_service.services.auth import Authorized
 
 from src.monetization_service.services.channel.channel import (
@@ -66,6 +66,39 @@ async def select_channel(
     session: AsyncSession = Depends(get_session),
 ):
     is_updated, message = await service.select_channel(session, channel_id)
+    if is_updated:
+        return ORJSONResponse(
+            {"message": message}, status_code=status.HTTP_200_OK
+        )
+    return ORJSONResponse(
+            {"message": message}, status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@channel_router.get("/fetch-channels")
+async def fetch_channels(
+    user_email: str,
+    number_of_channels: int,
+    service: ChannelService = Depends(get_channel_service),
+    session: AsyncSession = Depends(get_session),
+):
+    success, data = await service.fetch_channels(session, user_email, number_of_channels)
+    if success:
+        return ORJSONResponse(
+            data, status_code=status.HTTP_200_OK
+        )
+    return ORJSONResponse(
+            {"message": data}, status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@channel_router.post("/subscribe-channel")
+async def subscribe_channel(
+    payload: ChannelSubIn,
+    service: ChannelService = Depends(get_channel_service),
+    session: AsyncSession = Depends(get_session),
+):
+    is_updated, message = await service.subscribe_channel(session, payload)
     if is_updated:
         return ORJSONResponse(
             {"message": message}, status_code=status.HTTP_200_OK

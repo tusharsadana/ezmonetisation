@@ -37,7 +37,7 @@ def user_ratio(user_email: str):
     return query
 
 
-def user_num(user_email: str):
+def user_num_limit(user_email: str):
     query = (
         select(UserTypeConstants.fetch_video, UserTypeConstants.fetch_channel)
         .join(User, User.user_type == UserTypeConstants.user_type_id)

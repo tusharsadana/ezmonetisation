@@ -79,7 +79,7 @@ class SubscriberEarn(IdMixin, TimeMixin, Base):
         comment="User email of the linked channel",
         nullable=False,
     )
-    subscriber_earn = Column(Integer, nullable=False, comment="Subscriber earn")
+    subscriber_earn = Column(Float, nullable=False, comment="Subscriber earn")
 
 
 class WatchHourCredit(IdMixin, TimeMixin, Base):
@@ -109,4 +109,4 @@ class SubscriberCredit(IdMixin, TimeMixin, Base):
         comment="User email of the linked channel",
         nullable=False,
     )
-    subscriber_earn = Column(Integer, nullable=False, comment="Subscriber earn")
+    subscriber_earn = Column(Float, nullable=False, comment="Subscriber earn")

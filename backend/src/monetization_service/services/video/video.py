@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.monetization_service.queries.table import insert_to_table_by_model
-from src.monetization_service.queries.users import user_exists, user_ratio, user_num
+from src.monetization_service.queries.users import user_exists, user_ratio, user_num_limit
 from src.monetization_service.schemas.api.v1.video import VideoIn, VideoSelectIn, VideoCompIn
 from src.monetization_service.queries.video import (
     add_video, deselect_videos, get_video_list, video_isvalid, activate_videos, video_exists, fetch_videos
@@ -84,6 +84,8 @@ class VideoService:
         if not result:
             return False, "Invalid video_id"
         user_v = result[0]
+        if user_v == user_w:
+            return False, "Cannot watch your own video"
 
         query = user_ratio(user_w)
         result = await session.execute(query)
@@ -136,7 +138,7 @@ class VideoService:
         if not result:
             return False, "Invalid user_email"
 
-        query = user_num(user_email)
+        query = user_num_limit(user_email)
         result = await session.execute(query)
         vid_num_limit = result.one_or_none()
         if vid_num_limit[0] < num:

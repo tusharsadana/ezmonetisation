@@ -34,4 +34,10 @@ class ChannelIn(BaseModel):
         orm_mode = True
 
 
+class ChannelSubIn(BaseModel):
+    user_email: constr(strip_whitespace=True, min_length=1)
+    channel_id: UUID
+
+    class Config:
+        orm_mode = True
 

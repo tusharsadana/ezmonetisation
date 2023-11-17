@@ -78,7 +78,7 @@ def video_isvalid(data: VideoSelectIn):
 def video_exists(video_id: UUID):
     query = (
         select(Video.user_email)
-        .where(Video.id == video_id)
+        .where(and_(Video.id == video_id, Video.is_active))
     )
     return query
 
