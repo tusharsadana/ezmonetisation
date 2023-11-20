@@ -22,6 +22,15 @@ class VideoService:
         result = result.one_or_none()
         if not result:
             return False, "Invalid user_email"
+        query = user_in_watch_credit(data.user_email)
+        result = await session.execute(query)
+        result = result.one_or_none()
+        if not result:
+            insert_query = insert_to_table_by_model(
+                WatchHourCredit, {"user_email": data.user_email, "watch_hour": 2}
+            )
+            await session.execute(insert_query)
+
         video_data = [{"user_email": data.user_email, "video_link": link, "is_active": False} for link in data.video_links]
         query = add_video(video_data)
         result = await session.execute(query)
@@ -32,7 +41,7 @@ class VideoService:
             return False, "Error"
 
     @staticmethod
-    async def get_video_list(session: AsyncSession, user_email:str):
+    async def get_video_list(session: AsyncSession, user_email: str):
         query = user_exists(user_email)
         result = await session.execute(query)
         result = result.one_or_none()

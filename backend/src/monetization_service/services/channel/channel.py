@@ -22,6 +22,14 @@ class ChannelService:
         result = result.one_or_none()
         if not result:
             return False, "Invalid user_email"
+        query = user_in_sub_credit(data.user_email)
+        result = await session.execute(query)
+        result = result.one_or_none()
+        if not result:
+            insert_query = insert_to_table_by_model(
+                SubscriberCredit, {"user_email": data.user_email, "subscriber_earn": 2}
+            )
+            await session.execute(insert_query)
         query = deselect_channels(data.user_email)
         await session.execute(query)
         query = add_channel(data)
