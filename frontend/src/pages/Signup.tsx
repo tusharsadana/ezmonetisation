@@ -1,6 +1,6 @@
 import React, { FormEvent, useEffect, useState } from "react";
-import { registerUser } from "../service/auth";
-import {Button } from "@radix-ui/themes";
+import { registerUser } from "../services/auth";
+import { Button } from "@radix-ui/themes";
 import * as Form from "@radix-ui/react-form";
 import "../styles/styles.css";
 import { useNavigate, Link } from "react-router-dom";

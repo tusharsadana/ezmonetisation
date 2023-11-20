@@ -9,8 +9,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { loginUser } from "../service/auth";
+import { loginUser } from "../services/auth";
 import { AuthContext } from "../contexts/authContext";
+import * as Form from "@radix-ui/react-form";
+
+import "../styles/styles.css";
 
 const Item = styled(Paper)(({ theme }) => ({
   ...theme.typography.body2,
@@ -45,62 +48,40 @@ export default function Login(): JSX.Element {
       });
   };
 
+
+
   return (
-    <Grid
-      container
-      spacing={0}
-      direction="column"
-      alignItems="center"
-      justifyContent="center"
-    >
-      <Stack
-        spacing={0}
-        style={{ backgroundColor: "#ffffff95" }}
-        sx={{ p: 2, width: "60vh" }}
-      >
-        <Item>
-          <Typography
-            variant="h4"
-            gutterBottom
-            component="div"
-            align="center"
-            mt={3}
-          >
-            Sign In
-          </Typography>
-        </Item>
-        <Item>
-          <TextField
-            sx={{ width: "90%" }}
-            label="Email"
-            variant="outlined"
-            size="small"
-            defaultValue={email}
-            onChange={(e) => {
-              setInputState({ ...inputState, email: e.target.value });
-            }}
-          />
-        </Item>
-        <Item>
-          <TextField
-            sx={{ width: "90%" }}
-            type="password"
-            label="Password"
-            variant="outlined"
-            size="small"
-            defaultValue={password}
-            onChange={(e) => {
-              setInputState({ ...inputState, password: e.target.value });
-            }}
-          />
-        </Item>
-        <Item>
-          <Button variant="contained" color="secondary" onClick={handleLogin}>
-            Login
-          </Button>
-        </Item>
-        <Item></Item>
-      </Stack>
-    </Grid>
+    <Form.Root className="FormRoot">
+      <Form.Field className="FormField" name="email">
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+          <Form.Label className="FormLabel">Email</Form.Label>
+          <Form.Message className="FormMessage" match="valueMissing">
+            Please enter your email
+          </Form.Message>
+          <Form.Message className="FormMessage" match="typeMismatch">
+            Please provide a valid email
+          </Form.Message>
+        </div>
+        <Form.Control onChange={(e) => { setInputState({ ...inputState, email: e.target.value }), console.log(inputState) }} asChild>
+          <input className="Input" type="email" required />
+        </Form.Control>
+      </Form.Field>
+      <Form.Field className="FormField" name="question">
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+          <Form.Label className="FormLabel">Question</Form.Label>
+          <Form.Message className="FormMessage" match="valueMissing">
+            Please enter a question
+          </Form.Message>
+        </div>
+        <Form.Control asChild>
+          <textarea className="Textarea" required />
+        </Form.Control>
+      </Form.Field>
+      <Form.Submit asChild>
+        <button className="Button" style={{ marginTop: 10 }}>
+          Post question
+        </button>
+      </Form.Submit>
+    </Form.Root>
   );
 }

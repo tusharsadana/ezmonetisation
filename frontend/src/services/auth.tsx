@@ -1,21 +1,18 @@
 import axios, { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
 
-const BASE_URL = "http://localhost:8000/api/v1/auth";
+const BASE_URL = "http://localhost:8000/api/"; // .env
+
+const ROUTER_URL = "auth/"
 
 const userAPI = axios.create({
   baseURL: BASE_URL,
 });
 
-export const registerUser = async (userData: {
-  username: string;
-  password: string;
-  first_name: string;
-  last_name: string;
-}): Promise<void> => {
+export const registerUser = async (userData: any): Promise<void> => {
   try {
     let data = JSON.stringify(userData);
-    await userAPI.post("/sign-up", data, {
+    await userAPI.post(`${ROUTER_URL}signup`, data, {
       headers: {
         'Content-Type': 'application/json',
       },
