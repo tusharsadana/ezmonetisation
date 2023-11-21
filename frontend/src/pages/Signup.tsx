@@ -1,17 +1,20 @@
 import React, { FormEvent, useEffect, useState } from "react";
 import { registerUser } from "../services/auth";
-import { Button } from "@radix-ui/themes";
-import * as Form from "@radix-ui/react-form";
-import "../styles/styles.css";
+import {
+  Avatar,
+  Box,
+  Button,
+  Container,
+  CssBaseline,
+  Grid,
+  TextField,
+  ThemeProvider,
+  Typography,
+} from "@mui/material";
+import { createTheme } from "@mui/material/styles";
 import { useNavigate, Link } from "react-router-dom";
-
-type signUp = {
-  username: string;
-  password: string;
-  confirm_password: string;
-  first_name: string;
-  last_name: string;
-};
+import { LockOutlined } from "@mui/icons-material";
+import { signUp } from "../models/auth.model";
 
 export default function Signup(): JSX.Element {
   const [inputState, setInputState] = useState<signUp>({
@@ -27,6 +30,7 @@ export default function Signup(): JSX.Element {
   const { username, password, confirm_password, first_name, last_name } =
     inputState;
   const navigate = useNavigate();
+  const defaultTheme = createTheme();
 
   function handleInput(event: React.ChangeEvent<HTMLInputElement>) {
     setInputState({
@@ -69,129 +73,93 @@ export default function Signup(): JSX.Element {
     };
     registerUser(payload);
     console.log(payload);
-  };
+  }
 
   return (
-    <Form.Root
-      onSubmit={(event: FormEvent<HTMLFormElement>) => {
-        if (password === "") {
-          event.preventDefault();
-          return;
-        }
-
-        const data = Object.fromEntries(new FormData(event.currentTarget));
-        event.preventDefault();
-      }}
-      className="h-full w-full"
-    >
-      <div className="flex h-full w-full flex-col items-center justify-center bg-muted">
-        <div className="flex w-72 flex-col items-center justify-center gap-2">
-          <span className="mb-6 text-2xl font-semibold text-primary">
-            Sign up to ez-monetization
-          </span>
-          <div className="mb-3 w-full">
-            <Form.Field name="username">
-              <Form.Label className="data-[invalid]:label-invalid">
-                Username <span className="font-medium text-destructive">*</span>
-              </Form.Label>
-              // TODO
-              <Form.Control asChild>
-                <Input
-                  type="username"
-                  onChange={({ target: { value } }) => {
-                    handleInput({ target: { name: "username", value } });
-                  }}
-                  value={username}
-                  className="w-full"
+    <ThemeProvider theme={defaultTheme}>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+            <LockOutlined />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign up
+          </Typography>
+          <Box
+            component="form"
+            noValidate
+            onSubmit={handleRegistration}
+            sx={{ mt: 3 }}
+          >
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  autoComplete="given-name"
+                  name="firstName"
                   required
-                  placeholder="Username"
+                  fullWidth
+                  id="firstName"
+                  label="First Name"
+                  autoFocus
                 />
-              </Form.Control>
-
-              <Form.Message match="valueMissing" className="field-invalid">
-                Please enter your username
-              </Form.Message>
-            </Form.Field>
-          </div>
-          <div className="mb-3 w-full">
-            <Form.Field name="password" serverInvalid={password != confirm_password}>
-              <Form.Label className="data-[invalid]:label-invalid">
-                Password <span className="font-medium text-destructive">*</span>
-              </Form.Label>
-              // TODO
-              <InputComponent
-                onChange={(value) => {
-                  handleInput({ target: { name: "password", value } });
-                }}
-                value={password}
-                isForm
-                password={true}
-                required
-                placeholder="Password"
-                className="w-full"
-              />
-
-              <Form.Message className="field-invalid" match="valueMissing">
-                Please enter a password
-              </Form.Message>
-
-              {password != confirm_password && (
-                <Form.Message className="field-invalid">
-                  Passwords do not match
-                </Form.Message>
-              )}
-            </Form.Field>
-          </div>
-          <div className="w-full">
-            <Form.Field
-              name="confirmpassword"
-              serverInvalid={password != confirm_password}
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  required
+                  fullWidth
+                  id="lastName"
+                  label="Last Name"
+                  name="lastName"
+                  autoComplete="family-name"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="new-password"
+                />
+              </Grid>
+            </Grid>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={isDisabled}
             >
-              <Form.Label className="data-[invalid]:label-invalid">
-                Confirm your password{" "}
-                <span className="font-medium text-destructive">*</span>
-              </Form.Label>
-
-              <InputComponent
-                onChange={(value) => {
-                  handleInput({ target: { name: "cnfPassword", value } });
-                }}
-                value={confirm_password}
-                isForm
-                password={true}
-                required
-                placeholder="Confirm your password"
-                className="w-full"
-              />
-
-              <Form.Message className="field-invalid" match="valueMissing">
-                Please confirm your password
-              </Form.Message>
-            </Form.Field>
-          </div>
-          <div className="w-full">
-            <Form.Submit asChild>
-              <Button
-                disabled={isDisabled}
-                type="submit"
-                className="mr-3 mt-6 w-full"
-                onClick={() => {
-                  handleRegistration();
-                }}
-              >
-                Sign up
-              </Button>
-            </Form.Submit>
-          </div>
-          <div className="w-full">
-            <Link to="/login">
-              <Button className="w-full" variant="outline">
-                Already have an account?&nbsp;<b>Sign in</b>
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    </Form.Root>
+              Sign Up
+            </Button>
+            <Grid container justifyContent="flex-end">
+              <Grid item>
+                <Link to="/login">Already have an account? Sign in</Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
 }

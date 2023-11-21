@@ -12,7 +12,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" Component={Home} />
-          {/* <Route path="/signup" Component={Signup} /> */}
+          <Route path="/signup" Component={Signup} />
           <Route path="/login" Component={Login} />
           {/* <Route path="/reset-password" Component={ResetPassword} /> */}
         </Routes>

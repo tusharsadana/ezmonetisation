@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
 
-const BASE_URL = "http://localhost:8000/api/"; // .env
-
 const ROUTER_URL = "auth/"
+
+const BASE_URL = import.meta.env.BASE_URL;
 
 const userAPI = axios.create({
   baseURL: BASE_URL,

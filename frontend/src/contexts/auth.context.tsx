@@ -1,14 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import Cookies from "universal-cookie";
-
-type AuthState = {
-  isAuthenticated: boolean;
-  accessToken: string | null;
-  refreshToken: string | null;
-  userType: string | null;
-  login : (accessToken: string, refreshToken: string) => void;
-  logout : () => void;
-};
+import { AuthState } from "../models/auth.model";
 
 const initialAuthState: AuthState = {
   isAuthenticated: false,

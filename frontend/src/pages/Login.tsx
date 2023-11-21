@@ -1,35 +1,24 @@
 import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
+  Avatar,
+  Box,
   Button,
+  Container,
+  CssBaseline,
   Grid,
-  Paper,
-  Stack,
-  styled,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
+import { LockOutlined } from "@mui/icons-material";
 import { loginUser } from "../services/auth";
-import { AuthContext } from "../contexts/authContext";
-import * as Form from "@radix-ui/react-form";
-
-import "../styles/styles.css";
-
-const Item = styled(Paper)(({ theme }) => ({
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  borderRadius: theme.spacing(0),
-  color: theme.palette.text.secondary,
-}));
-
-type loginState = {
-  email: string;
-  password: string;
-};
+import { AuthContext } from "../contexts/auth.context";
+import { createTheme } from "@mui/material/styles";
+import { logIn } from "../models/auth.model";
 
 export default function Login(): JSX.Element {
-  const [inputState, setInputState] = useState<loginState>({
+  const [inputState, setInputState] = useState<logIn>({
     email: "",
     password: "",
   });
@@ -42,46 +31,79 @@ export default function Login(): JSX.Element {
     loginUser(email, password)
       .then((res) => {
         login(res.accessToken, res.refreshToken);
+        console.log("Successfully logged in");
       })
       .catch((err) => {
         console.log(err);
+        console.log("Failed to log in")
       });
   };
 
-
+  const defaultTheme = createTheme();
 
   return (
-    <Form.Root className="FormRoot">
-      <Form.Field className="FormField" name="email">
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-          <Form.Label className="FormLabel">Email</Form.Label>
-          <Form.Message className="FormMessage" match="valueMissing">
-            Please enter your email
-          </Form.Message>
-          <Form.Message className="FormMessage" match="typeMismatch">
-            Please provide a valid email
-          </Form.Message>
-        </div>
-        <Form.Control onChange={(e) => { setInputState({ ...inputState, email: e.target.value }), console.log(inputState) }} asChild>
-          <input className="Input" type="email" required />
-        </Form.Control>
-      </Form.Field>
-      <Form.Field className="FormField" name="question">
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-          <Form.Label className="FormLabel">Question</Form.Label>
-          <Form.Message className="FormMessage" match="valueMissing">
-            Please enter a question
-          </Form.Message>
-        </div>
-        <Form.Control asChild>
-          <textarea className="Textarea" required />
-        </Form.Control>
-      </Form.Field>
-      <Form.Submit asChild>
-        <button className="Button" style={{ marginTop: 10 }}>
-          Post question
-        </button>
-      </Form.Submit>
-    </Form.Root>
+    <ThemeProvider theme={defaultTheme}>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+            <LockOutlined />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign in
+          </Typography>
+          <Box
+            component="form"
+            onSubmit={handleLogin}
+            noValidate
+            sx={{ mt: 1 }}
+          >
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign In
+            </Button>
+            <Grid container>
+              <Grid item xs>
+                <Link to="#">Forgot password?</Link>
+              </Grid>
+              <Grid item>
+                <Link to="/signup">{"Don't have an account? Sign Up"}</Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
 }
