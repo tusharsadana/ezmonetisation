@@ -12,8 +12,6 @@ export const signIn = (email: string, password: string): Promise<IAuthTokens> =>
 
 export const signOut = async ({ access, refresh }: IAuthTokens): Promise<any> => {
     return axiosAPI.post("/v1/auth/sign-out", { access, refresh }).then((response) => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("refreshToken");
         return response.data;
     }).catch((error) => {
         return Promise.reject(error);
