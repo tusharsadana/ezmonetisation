@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
     Avatar,
@@ -28,9 +28,16 @@ export default function Login(): JSX.Element {
     const navigate = useNavigate();
     const { login } = useContext(AuthContext);
 
+
+    const handleChange = (event: { target: { name: any; value: any; }; }) => {
+        setInputState({ ...inputState, [event.target.name]: event.target.value });
+
+    };
+
     const handleLogin = () => {
         signIn(email, password)
             .then((res) => {
+                console.log(res)
                 login(res.access, res.refresh);
                 toast.success("Logged in successfully");
             })
@@ -61,9 +68,6 @@ export default function Login(): JSX.Element {
                         Sign in
                     </Typography>
                     <Box
-                        component="form"
-                        onSubmit={handleLogin}
-                        noValidate
                         sx={{ mt: 1 }}
                     >
                         <TextField
@@ -75,6 +79,7 @@ export default function Login(): JSX.Element {
                             name="email"
                             autoComplete="email"
                             autoFocus
+                            onChange={handleChange}
                         />
                         <TextField
                             margin="normal"
@@ -85,12 +90,14 @@ export default function Login(): JSX.Element {
                             type="password"
                             id="password"
                             autoComplete="current-password"
+                            onChange={handleChange}
                         />
                         <Button
                             type="submit"
                             fullWidth
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
+                            onClick={handleLogin}
                         >
                             Sign In
                         </Button>

@@ -4,11 +4,10 @@ import Cookies from "universal-cookie";
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "../contexts/auth.context";
 
 export const axiosAPIConfig = {
-    baseURL: "http://localhost.com:8000/api",
-    timeout: 50000,
+    baseURL: "http://localhost:8000/api",
+    timeout: 90000,
     headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
+        'Content-Type': 'application/json;charset=UTF-8',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
         'Access-Control-Allow-Headers': '*',
@@ -22,10 +21,10 @@ export const logoutStatusCodes = [401, 403];
 export const axiosAPI = axios.create(axiosAPIConfig);
 
 axiosAPI.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    // const token = new Cookies().get(ACCESS_TOKEN_KEY);
-    // if (token) {
-    //     config.headers.Authorization = `${token}`;
-    // }
+    const token = new Cookies().get(ACCESS_TOKEN_KEY);
+    if (token) {
+        config.headers.Authorization = `${token}`;
+    }
     return config;
 }, (error: AxiosError) => {
     return Promise.reject(error);
@@ -35,7 +34,7 @@ axiosAPI.interceptors.response.use((response: AxiosResponse) => {
     return response;
 }, async (error) => {
     toast.error(error.response?.statusText);
-    const originalRequest = error.config;
+    // const originalRequest = error.config;
 
     // If the error status is 401 and there is no originalRequest._retry flag,
     // it means the token has expired and we need to refresh it
@@ -58,7 +57,6 @@ axiosAPI.interceptors.response.use((response: AxiosResponse) => {
     //         toast.error("Internal server error");
     //     }
     // }
-    toast.error(error.response?.statusText);
     return Promise.reject(error);
 });
 
