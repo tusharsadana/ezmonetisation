@@ -7,65 +7,73 @@ import {
   Container,
   CssBaseline,
   Grid,
+  IconButton,
+  InputAdornment,
   TextField,
   ThemeProvider,
   Typography,
 } from "@mui/material";
-import { createTheme } from "@mui/material/styles";
+import {
+  Visibility,
+  VisibilityOff,
+  LockOutlined,
+} from "@mui/icons-material";
 import { useNavigate, Link } from "react-router-dom";
-import { LockOutlined } from "@mui/icons-material";
 import { signUp } from "../models/auth.model";
+import * as Yup from "yup";
+import { createTheme } from "@mui/material/styles";
+import "./styles/signup.styles.scss"
+
+const validationSchema = Yup.object().shape({
+  first_name: Yup.string().required("First Name is required"),
+  last_name: Yup.string().required("Last Name is required"),
+  username: Yup.string().required("Invalid username").required("Username is required"),
+  password: Yup.string().required("Password is required"),
+});
 
 export default function Signup(): JSX.Element {
   const [inputState, setInputState] = useState<signUp>({
-    username: "",
-    password: "",
-    confirm_password: "",
     first_name: "",
     last_name: "",
+    username: "",
+    password: "",
   });
 
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-  const { username, password, confirm_password, first_name, last_name } =
-    inputState;
+  const { first_name, last_name, username, password } = inputState;
   const navigate = useNavigate();
   const defaultTheme = createTheme();
 
-  function handleInput(event: React.ChangeEvent<HTMLInputElement>) {
+  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputState({
       ...inputState,
       [event.target.name]: event.target.value,
     });
-  }
+  };
 
   useEffect(() => {
-    if (
-      username === "" ||
-      password === "" ||
-      confirm_password === "" ||
-      first_name === "" ||
-      last_name === ""
-    ) {
-      setIsDisabled(true);
-    }
-    if (password === confirm_password) {
-      setIsDisabled(false);
-    } else {
-      setIsDisabled(true);
-    }
-  }, [
-    password,
-    confirm_password,
-    username,
-    first_name,
-    last_name,
-    handleInput,
-  ]);
+    validationSchema
+      .validate(inputState, { abortEarly: false })
+      .then(() => {
+        setIsDisabled(false);
+        setValidationErrors({});
+      })
+      .catch((err: { inner: any[]; }) => {
+        const errors: Record<string, string> = {};
+        err.inner.forEach((e) => {
+          errors[e.path] = e.message;
+        });
+        setIsDisabled(true);
+        setValidationErrors(errors);
+      });
+  }, [inputState]);
 
-  function handleRegistration(): void {
-    const { username, password, first_name, last_name } = inputState;
-    let payload = {
+  const handleRegistration = () => {
+    const { first_name, last_name, username, password } = inputState;
+    const payload = {
       username: username,
       password: password,
       first_name: first_name,
@@ -73,11 +81,15 @@ export default function Signup(): JSX.Element {
     };
     registerUser(payload);
     console.log(payload);
-  }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="xs" className="signup-container">
         <CssBaseline />
         <Box
           sx={{
@@ -103,32 +115,44 @@ export default function Signup(): JSX.Element {
               <Grid item xs={12} sm={6}>
                 <TextField
                   autoComplete="given-name"
-                  name="firstName"
+                  name="first_name"
                   required
                   fullWidth
-                  id="firstName"
+                  id="first_name"
                   label="First Name"
                   autoFocus
+                  value={first_name}
+                  onChange={handleInput}
+                  error={!!validationErrors.first_name}
+                  helperText={validationErrors.first_name}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   required
                   fullWidth
-                  id="lastName"
+                  id="last_name"
                   label="Last Name"
-                  name="lastName"
+                  name="last_name"
                   autoComplete="family-name"
+                  value={last_name}
+                  onChange={handleInput}
+                  error={!!validationErrors.last_name}
+                  helperText={validationErrors.last_name}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
                   fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
+                  value={username}
+                  onChange={handleInput}
+                  error={!!validationErrors.username}
+                  helperText={validationErrors.username}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -137,9 +161,22 @@ export default function Signup(): JSX.Element {
                   fullWidth
                   name="password"
                   label="Password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   id="password"
                   autoComplete="new-password"
+                  value={password}
+                  onChange={handleInput}
+                  error={!!validationErrors.password}
+                  helperText={validationErrors.password}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={togglePasswordVisibility} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
             </Grid>
