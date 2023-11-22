@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from './pages/login';
 import Dashboard from './pages/dashboard';
 import Signup from './pages/signup';
+import PrivateRoutes from './utils/private-route.utils';
 
 function App() {
 
@@ -11,7 +12,9 @@ function App() {
     <>
       <Router>
         <Routes>
-          <Route path="/" Component={Dashboard} />
+          {/* <Route element={<PrivateRoutes />}>
+            <Route path="/" Component={Dashboard} />
+          </Route> */}
           <Route path="/login" Component={Login} />
           <Route path="/signup" Component={Signup} />
           {/* <Route path="/reset-password" Component={ResetPassword} /> */}
