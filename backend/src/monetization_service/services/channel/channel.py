@@ -30,6 +30,10 @@ class ChannelService:
                 SubscriberCredit, {"user_email": data.user_email, "subscriber_earn": 2}
             )
             await session.execute(insert_query)
+            insert_query = insert_to_table_by_model(
+                SubscriberEarn, {"user_email": data.user_email, "subscriber_earn": 2}
+            )
+            await session.execute(insert_query)
         query = deselect_channels(data.user_email)
         await session.execute(query)
         query = add_channel(data)

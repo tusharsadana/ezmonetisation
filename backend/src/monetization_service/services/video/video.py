@@ -30,6 +30,10 @@ class VideoService:
                 WatchHourCredit, {"user_email": data.user_email, "watch_hour": 2}
             )
             await session.execute(insert_query)
+            insert_query = insert_to_table_by_model(
+                WatchHourEarn, {"user_email": data.user_email, "watch_hour": 2}
+            )
+            await session.execute(insert_query)
 
         video_data = [{"user_email": data.user_email, "video_link": link, "is_active": False} for link in data.video_links]
         query = add_video(video_data)
