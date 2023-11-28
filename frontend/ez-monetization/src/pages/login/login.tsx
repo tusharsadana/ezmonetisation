@@ -1,8 +1,6 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-    AppBar,
-    Avatar,
     Box,
     Button,
     Checkbox,
@@ -12,15 +10,10 @@ import {
     Grid,
     Paper,
     TextField,
-    ThemeProvider,
-    Toolbar,
     Typography,
-    colors,
 } from "@mui/material";
-import { LockOutlined } from "@mui/icons-material";
 import { signIn } from "../../services/auth.service";
 import { AuthContext } from "../../contexts/auth.context";
-import { createTheme } from "@mui/material/styles";
 import { ISignIn } from "../../models/auth.model";
 import { toast } from "react-toastify";
 
@@ -113,8 +106,9 @@ export default function Login(): JSX.Element {
                                 <Box
                                     component="form"
                                     noValidate
-                                    onSubmit={() => { }}
+                                    onSubmit={(e) => { e.preventDefault(); }}
                                     sx={{ mt: 1 }}
+
                                 >
                                     <TextField
                                         margin="normal"
@@ -125,6 +119,7 @@ export default function Login(): JSX.Element {
                                         name="email"
                                         autoComplete="email"
                                         autoFocus
+                                        onChange={handleChange}
                                     />
                                     <TextField
                                         margin="normal"
@@ -135,6 +130,7 @@ export default function Login(): JSX.Element {
                                         type="password"
                                         id="password"
                                         autoComplete="current-password"
+                                        onChange={handleChange}
                                     />
                                     <FormControlLabel
                                         control={<Checkbox value="remember" color="primary" />}
@@ -146,6 +142,7 @@ export default function Login(): JSX.Element {
                                         fullWidth
                                         variant="contained"
                                         sx={{ mt: 3, mb: 2 }}
+                                        onClick={handleLogin}
                                     >
                                         Sign In
                                     </Button>
