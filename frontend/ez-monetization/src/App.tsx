@@ -7,28 +7,32 @@ import Signup from './pages/signup';
 import PrivateRoutes from './utils/private-route.utils';
 import { AuthProvider } from './contexts/auth.context';
 import PublicRoutes from './utils/public-route.utils';
+import { ThemeProvider } from '@emotion/react';
+import theme from './theme/ThemeProvider';
 
 
 function App() {
 
   return (
     <>
-      <Router>
-        <AuthProvider>
-          <Routes>
-            <Route element={<PrivateRoutes />}>
-              <Route path="/" Component={Dashboard} />
-            </Route>
-            <Route element={<PublicRoutes />}>
-              <Route path="/login" Component={Login} />
-              <Route path="/signup" Component={Signup} />
-            </Route>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <AuthProvider>
+            <Routes>
+              <Route element={<PrivateRoutes />}>
+                <Route path="/" Component={Dashboard} />
+              </Route>
+              <Route element={<PublicRoutes />}>
+                <Route path="/login" Component={Login} />
+                <Route path="/signup" Component={Signup} />
+              </Route>
 
-            {/* <Route path="/reset-password" Component={ResetPassword} /> */}
-          </Routes>
-        </AuthProvider>
+              {/* <Route path="/reset-password" Component={ResetPassword} /> */}
+            </Routes>
+          </AuthProvider>
 
-      </Router>
+        </Router>
+      </ThemeProvider>
     </>
   )
 }
