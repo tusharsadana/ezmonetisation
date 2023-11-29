@@ -71,9 +71,9 @@ async def sign_in(
         email=auth_input.user_email, password=auth_input.password
     )
     if not check:
-        return Response(
+        return ORJSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            content="Wrong credentials",
+            content="User email or password incorrect",
         )
 
     results: UserSchema
