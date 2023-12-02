@@ -19,13 +19,13 @@ function App() {
         <Router>
           <AuthProvider>
             <Routes>
-              <Route element={<PrivateRoutes />}>
-                <Route path="/" Component={Dashboard} />
-              </Route>
-              <Route element={<PublicRoutes />}>
-                <Route path="/login" Component={Login} />
-                <Route path="/signup" Component={Signup} />
-              </Route>
+              {/* <Route element={<PrivateRoutes />}> */}
+              <Route path="/" Component={Dashboard} />
+              {/* </Route> */}
+              {/* <Route element={<PublicRoutes />}> */}
+              <Route path="/login" Component={Login} />
+              <Route path="/signup" Component={Signup} />
+              {/* </Route> */}
 
               {/* <Route path="/reset-password" Component={ResetPassword} /> */}
             </Routes>

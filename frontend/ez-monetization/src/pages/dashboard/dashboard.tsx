@@ -1,6 +1,5 @@
 import React from 'react';
-import Sidebar from '../../components/sidebar.component';
-import Navbar from '../../components/navbar.component';
+import Sidebar from '../../components/sidebar/sidebar.component';
 
 const Dashboard: React.FC = () => {
     return (
