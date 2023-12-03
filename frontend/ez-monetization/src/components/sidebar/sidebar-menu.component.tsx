@@ -3,9 +3,28 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import SubscriptionsIcon from "@mui/icons-material/Subscriptions";
 import { useNavigate } from "react-router-dom";
+import { signal } from "@preact/signals-react";
 
+const selectedMenuItem = signal(0);
 const SidebarMenu: React.FC = () => {
   const navigate = useNavigate();
+  const menuItems = [
+    {
+      label: "Dashboard",
+      Icon: DashboardIcon,
+      path: "/",
+    },
+    {
+      label: "Watch hours",
+      Icon: HourglassEmptyIcon,
+      path: "/watch",
+    },
+    {
+      label: "Subscribers",
+      Icon: SubscriptionsIcon,
+      path: "/sub",
+    }
+  ];
   return (
 
     <Paper elevation={0} sx={{ maxWidth: 300, margin: 'auto', marginTop: 4 }}>
@@ -19,34 +38,27 @@ const SidebarMenu: React.FC = () => {
           gap: "16px",
         }}
       >
-        {[{
-          label: "Dashboard",
-          Icon: DashboardIcon,
-          path: "/",
-        }, {
-          label: "Watch hours",
-          Icon: HourglassEmptyIcon,
-          path: "/watch",
-        }, {
-          label: "Subscribers",
-          Icon: SubscriptionsIcon,
-          path: "/sub",
-        }].map((item, index) => (
+        {menuItems.map((item, index) => (
           <MenuItem
             key={index}
-            onClick={() => navigate(item.path)}
+            onClick={() => {
+              selectedMenuItem.value = index;
+              navigate(item.path);
+            }}
             sx={{
               display: "flex",
               alignItems: "center",
               cursor: "pointer",
               borderRadius: 2,
               boxShadow: 1,
+              backgroundColor: selectedMenuItem.value === index ? "#5569ff" : "inherit",
+              color: selectedMenuItem.value === index ? "white" : "inherit",
               "&:hover": {
                 backgroundColor: "#5569ff",
                 color: "white",
                 boxShadow: 3,
               },
-              width: '100%', // Make menu items full width
+              width: '100%',
               padding: 2,
             }}
           >
