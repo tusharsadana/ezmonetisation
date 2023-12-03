@@ -1,9 +1,14 @@
 import React from 'react';
 import Sidebar from '../../components/sidebar/sidebar.component';
+import Appbar from '../../components/appbar.component';
+import { Grid } from '@mui/material';
 
 const Dashboard: React.FC = () => {
     return (
-        <Sidebar />
+        <Grid>
+            {/* <Appbar /> */}
+            <Sidebar />
+        </Grid>
     );
 };
 
