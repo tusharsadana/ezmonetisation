@@ -4,7 +4,7 @@ import React from 'react';
 const Dashboard: React.FC = () => {
     return (
         <>
-            <Typography variant="h4" component="h4" gutterBottom align="left">
+            <Typography variant="h3" component="h3" gutterBottom align="left">
                 Dashboard
             </Typography>
             <Grid container spacing={2} justifyContent="flex-start">
