@@ -38,7 +38,7 @@ def upgrade() -> None:
     user_type_data = [
         {
             "user_type_id": 0,
-            "user_type_name": "Super Admin",
+            "user_type_name": "Super User",
             "watch_hour_ratio": 1,
             "subscriber_ratio": 1,
             "fetch_video": 30,
