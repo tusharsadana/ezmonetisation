@@ -59,7 +59,7 @@ const SidebarMenu: React.FC = () => {
                 boxShadow: 3,
               },
               width: '100%',
-              padding: 2,
+              padding: 1.5,
             }}
           >
             <item.Icon sx={{ marginRight: 2 }} />
