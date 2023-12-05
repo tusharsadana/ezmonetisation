@@ -14,7 +14,6 @@ export interface IAuthState {
 export interface ISignUp {
     username: string;
     password: string;
-    confirm_password: string;
     first_name: string;
     last_name: string;
 }
