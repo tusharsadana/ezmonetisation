@@ -60,6 +60,25 @@ class User(TimeMixin, Base):
     subscriber_earn = relationship("SubscriberEarn")
     watch_hour_credit = relationship("WatchHourCredit")
     subscriber_credit = relationship("SubscriberCredit")
+    verification_token = relationship("VerificationToken")
+
+
+class VerificationToken(IdMixin,TimeMixin, Base):
+    """Table for verification tokens"""
+
+    __tablename__ = "verification_token"
+    user = relationship("User", back_populates="verification_token")
+    user_email = Column(
+        String,
+        ForeignKey("user.email"),
+        comment="User email of the linked channel",
+        nullable=False,
+    )
+    token = Column(
+        String,
+        comment="Token",
+        nullable=False,
+    )
 
 
 class UserTypeConstants(IdMixin, TimeMixin, Base):
