@@ -10,6 +10,7 @@ import { ThemeProvider } from '@emotion/react';
 import theme from './theme/ThemeProvider';
 import { Grid } from '@mui/material';
 import Dashboard from './pages/dashboard/dashboard';
+import WatchHours from './pages/watch-hours';
 
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
                 />
                 <Route
                   path="watch"
-                  element={<><h1>WATCH</h1></>}
+                  element={<WatchHours />}
                 />
                 <Route
                   path="sub"
