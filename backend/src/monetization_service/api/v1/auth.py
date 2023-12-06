@@ -2,7 +2,7 @@
 import logging
 
 # thirdparty
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status, Request
 from jwt import InvalidSignatureError
 
 # project
@@ -31,13 +31,60 @@ logger = logging.getLogger(__name__)
 )
 async def sign_up(
     auth_input: UserSignUp,
+    request: Request,
     auth_service: UserListAuth = Depends(get_user_list_auth),
 ):
-    is_created = await auth_service.new_user(auth_input)
+    is_created, message = await auth_service.new_user(auth_input)
     if is_created:
-        return ORJSONResponse(content={"description": "New account created successfully"},
+        token, message = await auth_service.generate_random_token(auth_input.user_email)
+
+        if token:
+            link = str(request.url_for("verify_email", token=token))
+            is_sent, message = await auth_service.send_email(auth_input.user_email, link)
+            if is_sent:
+                return ORJSONResponse(content={"description": "Your account has been created. "
+                                                              "A verification link has been sent to your email, "
+                                                              "please verify to activate you account"},
+                                      status_code=status.HTTP_200_OK)
+
+    return ORJSONResponse(content={"description": message},
+                          status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@auth_router.post(
+    path="/resend-verification-email",
+    description="Verify user email",
+)
+async def resend_verification_email(
+    user_email: str,
+    request: Request,
+    auth_service: UserListAuth = Depends(get_user_list_auth),
+):
+    token, message = await auth_service.generate_random_token(user_email)
+    if token:
+        link = str(request.url_for("verify_email", token=token))
+        is_sent, message = await auth_service.send_email(user_email, link)
+        if is_sent:
+            return ORJSONResponse(content={"description": "A verification link has been sent to your email, "
+                                                          "please verify to activate you account"},
+                                  status_code=status.HTTP_200_OK)
+    return ORJSONResponse(content={"description": message},
+                          status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@auth_router.get(
+    path="/verify-email/{token}",
+    description="Verify user email",
+)
+async def verify_email(
+    token: str,
+    auth_service: UserListAuth = Depends(get_user_list_auth),
+):
+    is_verified, message = await auth_service.verify_user(token)
+    if is_verified:
+        return ORJSONResponse(content={"description": message},
                               status_code=status.HTTP_200_OK)
-    return ORJSONResponse(content={"description": "Account with the given username already exists"},
+    return ORJSONResponse(content={"description": message},
                           status_code=status.HTTP_400_BAD_REQUEST)
 
 
@@ -62,18 +109,19 @@ async def sign_in(
     Endpoint for sign in
 
     Request body:
-    **username** - Username
+    **user_email** - UserEmail
     **password** - Password
 
     Current mapping of roles:
     """
     check, results = await auth_service.login(
-        email=auth_input.username, password=auth_input.password
+        email=auth_input.user_email, password=auth_input.password
     )
+
     if not check:
-        return Response(
+        return ORJSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            content="Wrong credentials",
+            content="User email or password incorrect",
         )
 
     results: UserSchema
@@ -174,9 +222,9 @@ async def reset_password(
     auth_service: UserListAuth = Depends(get_user_list_auth),
 ):
     is_reset, new_password = await auth_service.reset_password(
-        payload.username, payload.length
+        payload.user_email, payload.length
     )
     if is_reset:
-        await auth_service.drop_token(payload.username)
+        await auth_service.drop_token(payload.user_email)
         return {"new-password": new_password}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

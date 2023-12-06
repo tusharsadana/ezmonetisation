@@ -3,56 +3,55 @@ from uuid import UUID
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.monetization_service.models.channel import SubscriberCredit, SubscriberEarn
-from src.monetization_service.queries.credit import user_in_sub_credit, update_sub_credit
 from src.monetization_service.queries.table import insert_to_table_by_model
 from src.monetization_service.queries.users import user_exists, user_ratio, user_num_limit
-from src.monetization_service.schemas.api.v1.channel import ChannelIn, ChannelSubIn
-from src.monetization_service.queries.channel import (
-    add_channel, deselect_channels, get_channel_list, channel_isvalid, select_channel, channel_exists, fetch_channels
+from src.monetization_service.schemas.api.v1.video import VideoIn, VideoSelectIn, VideoCompIn
+from src.monetization_service.queries.video import (
+    add_video, deselect_videos, get_video_list, video_isvalid, activate_videos, video_exists, fetch_videos
 )
+from src.monetization_service.queries.credit import user_in_watch_credit, update_watch_credit
+from src.monetization_service.models.channel import WatchHourCredit, WatchHourEarn
 
 
-class ChannelService:
+class VideoService:
 
     @staticmethod
-    async def add_channel(session: AsyncSession, data: ChannelIn):
+    async def add_video(session: AsyncSession, data: VideoIn):
         query = user_exists(data.user_email)
         result = await session.execute(query)
         result = result.one_or_none()
         if not result:
             return False, "Invalid user_email"
-        query = user_in_sub_credit(data.user_email)
+        query = user_in_watch_credit(data.user_email)
         result = await session.execute(query)
         result = result.one_or_none()
         if not result:
             insert_query = insert_to_table_by_model(
-                SubscriberCredit, {"user_email": data.user_email, "subscriber_earn": 2}
+                WatchHourCredit, {"user_email": data.user_email, "watch_hour": 2}
             )
             await session.execute(insert_query)
             insert_query = insert_to_table_by_model(
-                SubscriberEarn, {"user_email": data.user_email, "subscriber_earn": 2}
+                WatchHourEarn, {"user_email": data.user_email, "watch_hour": 2}
             )
             await session.execute(insert_query)
-        query = deselect_channels(data.user_email)
-        await session.execute(query)
-        query = add_channel(data)
+
+        video_data = [{"user_email": data.user_email, "video_link": link, "is_active": False} for link in data.video_links]
+        query = add_video(video_data)
         result = await session.execute(query)
         await session.commit()
-        result = result.one_or_none()
         if result:
-            return True, "Added channel successfully"
+            return True, "Added videos successfully"
         else:
             return False, "Error"
 
     @staticmethod
-    async def get_channel_list(session: AsyncSession, user_email: str):
+    async def get_video_list(session: AsyncSession, user_email: str):
         query = user_exists(user_email)
         result = await session.execute(query)
         result = result.one_or_none()
         if not result:
             return False, "Invalid user_email"
-        query = get_channel_list(user_email)
+        query = get_video_list(user_email)
         result = await session.execute(query)
         result = result.all()
         if result:
@@ -61,84 +60,91 @@ class ChannelService:
             return False, "Error"
 
     @staticmethod
-    async def select_channel(session: AsyncSession, channel_id: UUID):
-        query = channel_isvalid(channel_id)
-        result = await session.execute(query)
-        result = result.one_or_none()
-        if not result:
-            return False, "Invalid channel_id"
-        result = result[0]
-        query = deselect_channels(result)
-        await session.execute(query)
-        query = select_channel(channel_id)
-        result = await session.execute(query)
-        await session.commit()
-        if result:
-            return True, "Channel selected successfully"
-        else:
-            return False, "Error"
-
-    @staticmethod
-    async def subscribe_channel(session: AsyncSession, payload: ChannelSubIn):
-        user_prd = payload.user_email
-        query = user_exists(user_prd)
+    async def activate_videos(session: AsyncSession, payload: VideoSelectIn):
+        query = user_exists(payload.user_email)
         result = await session.execute(query)
         result = result.one_or_none()
         if not result:
             return False, "Invalid user_email"
-        query = channel_exists(payload.channel_id)
+        if len(payload.video_ids) > 10:
+            return False, "No more than 10 videos can be active at a time"
+        query = video_isvalid(payload)
+        result = await session.execute(query)
+        result = result.all()
+        if not result[0][0] == len(payload.video_ids):
+            return False, "Video_ids and user_email do not match"
+        query = deselect_videos(payload.user_email)
+        await session.execute(query)
+        query = activate_videos(payload.video_ids)
+        result = await session.execute(query)
+        await session.commit()
+        if result:
+            return True, "Videos activated successfully"
+        else:
+            return False, "Error"
+
+    @staticmethod
+    async def complete_video(session: AsyncSession, payload: VideoCompIn):
+        user_w = payload.user_email
+        query = user_exists(user_w)
         result = await session.execute(query)
         result = result.one_or_none()
         if not result:
-            return False, "Invalid channel_id"
-        user_csmr = result[0]
-        if user_csmr == user_prd:
-            return False, "Cannot subscribe to your own channel"
-
-        query = user_ratio(user_prd)
+            return False, "Invalid user_email"
+        query = video_exists(payload.video_id)
         result = await session.execute(query)
-        user_csmr_ratio = result.one_or_none()
-        user_csmr_credit = -1
-        user_prd_credit = user_csmr_ratio[1]
+        result = result.one_or_none()
+        if not result:
+            return False, "Invalid video_id"
+        user_v = result[0]
+        if user_v == user_w:
+            return False, "Cannot watch your own video"
 
-        query = user_in_sub_credit(user_csmr)
+        query = user_ratio(user_w)
+        result = await session.execute(query)
+        user_w_ratio = result.one_or_none()
+
+        user_v_credit = -1*payload.video_duration
+        user_w_credit = payload.video_duration*user_w_ratio[0]
+
+        query = user_in_watch_credit(user_v)
         result = await session.execute(query)
         result = result.one_or_none()
         if not result:
             insert_query = insert_to_table_by_model(
-                SubscriberCredit, {"user_email": user_csmr, "subscriber_earn": user_csmr_credit}
+                WatchHourCredit, {"user_email": user_v, "watch_hour": user_v_credit}
             )
             await session.execute(insert_query)
         else:
-            query = update_sub_credit(user_csmr, user_csmr_credit)
+            query = update_watch_credit(user_v, user_v_credit)
             await session.execute(query)
 
         insert_query = insert_to_table_by_model(
-                SubscriberEarn, {"user_email": user_csmr, "subscriber_earn": user_csmr_credit}
+                WatchHourEarn, {"user_email": user_v, "watch_hour": user_v_credit}
             )
         await session.execute(insert_query)
 
-        query = user_in_sub_credit(user_prd)
+        query = user_in_watch_credit(user_w)
         result = await session.execute(query)
         result = result.one_or_none()
         if not result:
             insert_query = insert_to_table_by_model(
-                SubscriberCredit, {"user_email": user_prd, "subscriber_earn": user_prd_credit}
+                WatchHourCredit, {"user_email": user_w, "watch_hour": user_w_credit}
             )
             await session.execute(insert_query)
         else:
-            query = update_sub_credit(user_prd, user_prd_credit)
+            query = update_watch_credit(user_w, user_w_credit)
             await session.execute(query)
         insert_query = insert_to_table_by_model(
-                SubscriberEarn, {"user_email": user_prd, "subscriber_earn": user_prd_credit}
+                WatchHourEarn, {"user_email": user_w, "watch_hour": user_w_credit}
             )
         await session.execute(insert_query)
         await session.commit()
 
-        return True, "Subscribed successfully"
+        return True, "Video completed successfully"
 
     @staticmethod
-    async def fetch_channels(session: AsyncSession, user_email: str, num: int):
+    async def fetch_videos(session: AsyncSession, user_email: str, num: int):
         query = user_exists(user_email)
         result = await session.execute(query)
         result = result.one_or_none()
@@ -147,11 +153,11 @@ class ChannelService:
 
         query = user_num_limit(user_email)
         result = await session.execute(query)
-        sub_num_limit = result.one_or_none()
-        if sub_num_limit[1] < num:
-            return False, f"Number of channels to be fetched cannot be more than {sub_num_limit[1]}"
+        vid_num_limit = result.one_or_none()
+        if vid_num_limit[0] < num:
+            return False, f"Number of videos to be fetched cannot be more than {vid_num_limit[0]}"
 
-        query = fetch_channels(user_email, num)
+        query = fetch_videos(user_email, num)
         result = await session.execute(query)
         result = result.all()
         result_dict = {}
@@ -164,10 +170,10 @@ class ChannelService:
                 if counter == num:
                     break
         result_list = list(result_dict.values())
-        data = [{"channel_id": str(uid), "channel_link": link} for uid, link, email in result_list]
+        data = [{"video_id": str(uid), "video_link": link} for uid, link, email in result_list]
         return True, data
 
 
 @cache
-def get_channel_service() -> ChannelService:
-    return ChannelService()
+def get_video_service() -> VideoService:
+    return VideoService()

@@ -79,7 +79,34 @@ class SubscriberEarn(IdMixin, TimeMixin, Base):
         comment="User email of the linked channel",
         nullable=False,
     )
-    subscriber_earn = Column(Integer, nullable=False, comment="Subscriber earn")
+    subscriber_earn = Column(Float, nullable=False, comment="Subscriber earn")
 
 
+class WatchHourCredit(IdMixin, TimeMixin, Base):
+    """Table for storing channel links of users"""
 
+    __tablename__ = "watch_hour_credit"
+
+    user = relationship("User", back_populates="watch_hour_credit")
+    user_email = Column(
+        String,
+        ForeignKey("user.email"),
+        comment="User email of the linked channel",
+        nullable=False,
+    )
+    watch_hour = Column(Float, nullable=False, comment="Watch hour")
+
+
+class SubscriberCredit(IdMixin, TimeMixin, Base):
+    """Table for storing channel links of users"""
+
+    __tablename__ = "subscriber_credit"
+
+    user = relationship("User", back_populates="subscriber_credit")
+    user_email = Column(
+        String,
+        ForeignKey("user.email"),
+        comment="User email of the linked channel",
+        nullable=False,
+    )
+    subscriber_earn = Column(Float, nullable=False, comment="Subscriber earn")
