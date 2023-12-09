@@ -23,8 +23,24 @@ logger = logging.getLogger(__name__)
 video_router = APIRouter(
     prefix="/video",
     tags=["Video"],
-    dependencies=[Depends(Authorized(0, 1, 2))],
+    # dependencies=[Depends(Authorized(0, 1, 2))],
 )
+
+
+@video_router.get("/user-watch-hours-privileges")
+async def user_watch_hours_privileges(
+    user_email: str,
+    service: VideoService = Depends(get_video_service),
+    session: AsyncSession = Depends(get_session),
+):
+    success, data = await service.user_watch_privileges(session, user_email)
+    if success:
+        return ORJSONResponse(
+            data, status_code=status.HTTP_200_OK
+        )
+    return ORJSONResponse(
+            {"message": data}, status_code=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @video_router.post("/add-video")

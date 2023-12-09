@@ -1,8 +1,8 @@
 # thirdparty
 from sqlalchemy import Insert, Update, insert, update, select, and_, Delete
-
+from sqlalchemy.sql.functions import func
 # project
-from src.monetization_service.models.user import User, UserTypeConstants, VerificationToken
+from src.monetization_service.models.user import User, UserTypeConstants as utc, VerificationToken
 
 
 def user_exists(user_email: str):
@@ -49,8 +49,8 @@ def add_new_user_query(user_email: str, password: str, user_type: int, first_nam
 
 def user_ratio(user_email: str):
     query = (
-        select(UserTypeConstants.watch_hour_ratio, UserTypeConstants.subscriber_ratio)
-        .join(User, User.user_type == UserTypeConstants.user_type_id)
+        select(utc.watch_hour_ratio, utc.subscriber_ratio)
+        .join(User, User.user_type == utc.user_type_id)
         .where(User.email == user_email)
     )
     return query
@@ -58,8 +58,8 @@ def user_ratio(user_email: str):
 
 def user_num_limit(user_email: str):
     query = (
-        select(UserTypeConstants.fetch_video, UserTypeConstants.fetch_channel)
-        .join(User, User.user_type == UserTypeConstants.user_type_id)
+        select(utc.fetch_video, utc.fetch_channel)
+        .join(User, User.user_type == utc.user_type_id)
         .where(User.email == user_email)
     )
     return query
@@ -92,3 +92,23 @@ def delete_user(user_email: str):
         .where(VerificationToken.user_email == user_email)
     )
     return user_query, verification_token_query
+
+
+def user_watch_privileges(user_email: str):
+    query = (
+        select(
+            func.json_agg(
+                func.json_build_object(
+                    'User Type', utc.user_type_name,
+                    'Maximum video duration', utc.max_video_duration,
+                    'Watched vs Earned hours ratio', utc.watch_hour_ratio,
+                    'Allowed fetch videos', utc.fetch_video,
+                    'Minimum videos allowed', utc.min_videos_allowed,
+                    'Maximum videos allowed', utc.max_videos_allowed,
+                )
+            ).label('privileges')
+        )
+        .join(User, User.user_type == utc.user_type_id)
+        .where(User.email == user_email)
+    )
+    return query
