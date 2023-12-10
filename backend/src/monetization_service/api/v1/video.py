@@ -27,6 +27,22 @@ video_router = APIRouter(
 )
 
 
+@video_router.get("/user-watch-hours-privileges")
+async def user_watch_hours_privileges(
+    user_email: str,
+    service: VideoService = Depends(get_video_service),
+    session: AsyncSession = Depends(get_session),
+):
+    success, data = await service.user_watch_privileges(session, user_email)
+    if success:
+        return ORJSONResponse(
+            data, status_code=status.HTTP_200_OK
+        )
+    return ORJSONResponse(
+            {"message": data}, status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+
 @video_router.post("/add-video")
 async def add_video(
     payload: VideoIn,

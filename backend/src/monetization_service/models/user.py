@@ -121,4 +121,23 @@ class UserTypeConstants(IdMixin, TimeMixin, Base):
         nullable=False,
         default=1
     )
+    max_video_duration = Column(
+        Integer,
+        comment="Maximum video duration",
+        nullable=False,
+        default=6
+    )
+    max_videos_allowed = Column(
+        Integer,
+        comment="Maximum no. of videos allowed",
+        nullable=False,
+        default=10
+    )
+    min_videos_allowed = Column(
+        Integer,
+        comment="Minimum no. of videos allowed",
+        nullable=False,
+        default=1
+    )
+    
     user = relationship("User")

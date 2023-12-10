@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.monetization_service.queries.table import insert_to_table_by_model
-from src.monetization_service.queries.users import user_exists, user_ratio, user_num_limit
+from src.monetization_service.queries.users import user_exists, user_ratio, user_num_limit, user_watch_privileges
 from src.monetization_service.schemas.api.v1.video import VideoIn, VideoSelectIn, VideoCompIn
 from src.monetization_service.queries.video import (
     add_video, deselect_videos, get_video_list, video_isvalid, activate_videos, video_exists, fetch_videos
@@ -66,8 +66,14 @@ class VideoService:
         result = result.one_or_none()
         if not result:
             return False, "Invalid user_email"
-        if len(payload.video_ids) > 10:
-            return False, "No more than 10 videos can be active at a time"
+        query = user_watch_privileges(payload.user_email)
+        result = await session.execute(query)
+        result = result.all()
+        data = result[0][0][0]
+        if len(payload.video_ids) > data['Maximum videos allowed']:
+            return False, f"No more than {data['Maximum videos allowed']} videos can be active at a time"
+        if len(payload.video_ids) < data['Minimum videos allowed']:
+            return False, f"Please activate at least {data['Minimum videos allowed']} videos"
         query = video_isvalid(payload)
         result = await session.execute(query)
         result = result.all()
@@ -173,6 +179,17 @@ class VideoService:
         data = [{"video_id": str(uid), "video_link": link} for uid, link, email in result_list]
         return True, data
 
+    @staticmethod
+    async def user_watch_privileges(session: AsyncSession, user_email: str):
+        query = user_exists(user_email)
+        result = await session.execute(query)
+        result = result.one_or_none()
+        if not result:
+            return False, "Invalid user_email"
+        query = user_watch_privileges(user_email)
+        result = await session.execute(query)
+        result = result.all()
+        return True, result[0][0][0]
 
 @cache
 def get_video_service() -> VideoService:
