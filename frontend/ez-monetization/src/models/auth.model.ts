@@ -8,7 +8,7 @@ export interface IAuthState {
     accessToken: string | null;
     refreshToken: string | null;
     userType: string | null;
-    login: (access: string, refresh: string) => void;
+    login: (access: string, refresh: string, userEmail: string) => void;
     logout: () => void;
 }
 export interface ISignUp {

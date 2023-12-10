@@ -39,7 +39,7 @@ export default function Login(): JSX.Element {
         signIn(email, password)
             .then((res) => {
                 console.log(res)
-                login(res.access, res.refresh);
+                login(res.access, res.refresh, email);
                 toast.success("Logged in successfully");
             })
             .catch((err) => {
