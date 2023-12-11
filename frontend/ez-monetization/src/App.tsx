@@ -21,7 +21,7 @@ function App() {
         <Router>
           <AuthProvider>
             <Routes>
-              {/* <Route element={<PrivateRoutes />}> */}
+              <Route element={<PrivateRoutes />}>
               <Route path="/" Component={Home} >
                 <Route
                   path=""
@@ -51,11 +51,11 @@ function App() {
                 />
 
               </Route>
-              {/* </Route> */}
-              {/* <Route element={<PublicRoutes />}> */}
+              </Route>
+              <Route element={<PublicRoutes />}>
               <Route path="/login" Component={Login} />
               <Route path="/signup" Component={Signup} />
-              {/* </Route> */}
+              </Route>
 
               {/* <Route path="/reset-password" Component={ResetPassword} /> */}
             </Routes>

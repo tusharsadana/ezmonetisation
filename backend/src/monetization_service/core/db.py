@@ -47,14 +47,15 @@ Base = declarative_base()
 
 async def get_session():
     session = async_session_maker()
-    try:
-        yield session
-    finally:
-        result = await session.execute(
-            sqlalchemy.text("SELECT sum(numbackends) FROM pg_stat_database;")
-        )
-        logger.info(f"Current connections: {result.one()[0]}/{POOL_SIZE}")
-        await session.close()
+    yield session
+    # try:
+    #     yield session
+    # finally:
+    #     result = await session.execute(
+    #         sqlalchemy.text("SELECT sum(numbackends) FROM pg_stat_database;")
+    #     )
+    #     logger.info(f"Current connections: {result.one()[0]}/{POOL_SIZE}")
+    #     await session.close()
 
 
 @asynccontextmanager

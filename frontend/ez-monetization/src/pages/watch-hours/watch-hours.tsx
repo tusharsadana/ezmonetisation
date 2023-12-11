@@ -11,10 +11,11 @@ import CallMadeIcon from "@mui/icons-material/CallMade";
 import { signal } from "@preact/signals-react";
 import { useNavigate } from "react-router-dom";
 import { CallReceived } from "@mui/icons-material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { axiosAPI, axiosAPIConfig, httpGet } from "../../services/api.service";
 import Cookies from "universal-cookie";
 import { USER_EMAIL } from "../../contexts/auth.context";
+import { IVideo, IVideoMap } from "../../models/watch.model";
 
 export default function WatchHours(): JSX.Element {
   const userType = [
@@ -56,24 +57,31 @@ export default function WatchHours(): JSX.Element {
   ];
 
   const cookie = new Cookies();
-  const videos_link = signal("");
+  const [videoMap, setVideoMap] = useState<IVideoMap>({});
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userEmail = cookie.get(USER_EMAIL);
-        const numberOfVideos = 10;
-        const urlWithParams = `/video/fetch-videos?user_email=${userEmail}&number_of_videos=${numberOfVideos}`;
-        const data = await httpGet<string>(urlWithParams, axiosAPIConfig);
+  const fetchData = async () => {
+    try {
+      const userEmail = cookie.get("USER_EMAIL");
+      const numberOfVideos = 1;
+      const urlWithParams = `/v1/video/fetch-videos?user_email=${userEmail}&number_of_videos=${numberOfVideos}`;
+      const data = await httpGet<IVideo[]>(urlWithParams, axiosAPIConfig);
 
-        videos_link.value = data;
-      } catch (error) {
-        console.error("Error fetching video data:", error);
-      }
-    };
+      setVideoMap(
+        data.reduce((acc, { video_id, video_link }, index) => {
+          acc[video_id] = { video_link, index };
+          return acc;
+        }, {} as IVideoMap)
+      );
+    } catch (error) {
+      console.error("Error fetching video data:", error);
+    }
+  };
 
-    fetchData();
-  }, [videos_link.value]);
+  // useEffect(() => {
+    
+
+  //   fetchData();
+  // }, []);
 
   const navigate = useNavigate();
 
@@ -201,8 +209,8 @@ export default function WatchHours(): JSX.Element {
             color="primary"
             variant="contained"
             size="medium"
-            onClick={() => {
-              // fetch videos call
+            onClick={()=>{
+              fetchData();
             }}
             sx={{
               borderRadius: 20,
@@ -222,13 +230,20 @@ export default function WatchHours(): JSX.Element {
         </Grid>
       </Box>
       <Grid container spacing={2} justifyContent="flex-start">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
-          <Grid item xs={12} sm={6} md={3} key={item}>
+        {Object.entries(videoMap).map(([videoId, { video_link, index }]) => (
+          <Grid item xs={12} sm={6} md={3}>
             <Paper elevation={0} sx={{ padding: 2, textAlign: "left" }}>
               <Typography variant="h6" align="left">
-                Video {item}
+                Video {index + 1}
               </Typography>
-              <Typography align="left">Shadowed clip {item}.</Typography>
+              <iframe
+                width="100%"
+                height="200"
+                src={video_link}
+                key={videoId}
+                title={`Video ${index + 1}`}
+                allowFullScreen
+              ></iframe>
             </Paper>
           </Grid>
         ))}

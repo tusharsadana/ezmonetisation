@@ -3,7 +3,7 @@ import { axiosAPI } from "./api.service"
 
 
 export const signIn = (email: string, password: string): Promise<IAuthTokens> => {
-    return axiosAPI.post("/v1/auth/sign-in", { username: email, password }).then((response) => {
+    return axiosAPI.post("/v1/auth/sign-in", { user_email: email, password }).then((response) => {
         return response.data;
     }).catch((error) => {
         return Promise.reject(error);
