@@ -12,10 +12,17 @@ import { signal } from "@preact/signals-react";
 import { useNavigate } from "react-router-dom";
 import { CallReceived } from "@mui/icons-material";
 import { useEffect, useState } from "react";
-import { axiosAPI, axiosAPIConfig, httpGet } from "../../services/api.service";
+import {
+  axiosAPI,
+  axiosAPIConfig,
+  httpGet,
+  httpPost,
+} from "../../services/api.service";
 import Cookies from "universal-cookie";
 import { USER_EMAIL } from "../../contexts/auth.context";
 import { IVideo, IVideoMap } from "../../models/watch.model";
+import YouTube, { YouTubeProps } from "react-youtube";
+import { toast } from "react-toastify";
 
 export default function WatchHours(): JSX.Element {
   const userType = [
@@ -61,7 +68,7 @@ export default function WatchHours(): JSX.Element {
 
   const fetchData = async () => {
     try {
-      const userEmail = cookie.get("USER_EMAIL");
+      const userEmail = cookie.get(USER_EMAIL);
       const numberOfVideos = 1;
       const urlWithParams = `/v1/video/fetch-videos?user_email=${userEmail}&number_of_videos=${numberOfVideos}`;
       const data = await httpGet<IVideo[]>(urlWithParams, axiosAPIConfig);
@@ -77,11 +84,40 @@ export default function WatchHours(): JSX.Element {
     }
   };
 
-  // useEffect(() => {
-    
+  const [videoTimes, setVideoTimes] = useState<number[]>(Array(100).fill(0));
 
-  //   fetchData();
-  // }, []);
+  const updateVideoTime = (videoIndex: number, time: number) => {
+    setVideoTimes((prevTimes) => {
+      const newTimes = [...prevTimes];
+      newTimes[videoIndex] = time;
+      return newTimes;
+    });
+  };
+
+  const videoCompleted = async (videoIndex: number) => {
+    const videoId = Object.keys(videoMap)[videoIndex];
+    const startTime = videoTimes[videoIndex];
+    const endTime = new Date().getTime();
+    const durationRan = (endTime - startTime) / 1000 / 60;
+
+    try {
+      const response = await httpPost<any>(
+        "/v1/video/video_completion",
+        {
+          user_email: cookie.get(USER_EMAIL),
+          video_id: videoId,
+          video_duration: durationRan,
+        },
+        axiosAPIConfig
+      );
+      console.log(response.data);
+      toast.success("Video " + (videoIndex + 1) + "completed successfully.");
+      // show watch hours earned
+      updateVideoTime(videoIndex, 0);
+    } catch (error) {
+      console.error("Error completing video:", error);
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -109,6 +145,16 @@ export default function WatchHours(): JSX.Element {
   const ratio = selectedUser?.ratio || 0;
 
   const watchHoursFor10Videos = (10 * eachVideoTime * ratio) / 60;
+
+  const opts: YouTubeProps["opts"] = {
+    height: "200",
+    width: "100%",
+    playerVars: {
+      autoplay: 1,
+      mute: 1,
+      fs: 0,
+    },
+  };
 
   return (
     <>
@@ -209,7 +255,7 @@ export default function WatchHours(): JSX.Element {
             color="primary"
             variant="contained"
             size="medium"
-            onClick={()=>{
+            onClick={() => {
               fetchData();
             }}
             sx={{
@@ -231,19 +277,30 @@ export default function WatchHours(): JSX.Element {
       </Box>
       <Grid container spacing={2} justifyContent="flex-start">
         {Object.entries(videoMap).map(([videoId, { video_link, index }]) => (
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={3} key={index}>
             <Paper elevation={0} sx={{ padding: 2, textAlign: "left" }}>
               <Typography variant="h6" align="left">
                 Video {index + 1}
               </Typography>
-              <iframe
-                width="100%"
-                height="200"
-                src={video_link}
-                key={videoId}
-                title={`Video ${index + 1}`}
-                allowFullScreen
-              ></iframe>
+              <div
+                style={{
+                  position: "relative",
+                  // filter: "blur(2px)",
+                }}
+              >
+                <YouTube
+                  videoId="8-E1LbChJ88"
+                  opts={opts}
+                  onEnd={() => videoCompleted(index)}
+                  onPlay={() => {
+                    setInterval(() => {
+                      const currentTime = new Date().getTime();
+                      updateVideoTime(index, currentTime);
+                    }, 1000);
+                    console.log(videoTimes[index]);
+                  }}
+                />
+              </div>
             </Paper>
           </Grid>
         ))}
