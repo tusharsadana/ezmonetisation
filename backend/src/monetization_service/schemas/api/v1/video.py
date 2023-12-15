@@ -19,12 +19,14 @@ class VideoIn(BaseModel):
 
     @validator("video_links")
     def validate_video_links(cls, value):
-        video_link_pattern = re.compile(r'https://www\.youtube\.com/watch\?v=[a-zA-Z0-9_-]+(&t=\d+s)?')
-
-        for link in value:
-            if not video_link_pattern.fullmatch(link):
+        video_link_pattern = re.compile(r'https://www\.youtube\.com/watch\?v=([a-zA-Z0-9_-]+)(&t=\d+s)?')
+        for i in range(len(value)):
+            match = video_link_pattern.match(value[i])
+            if match:
+                video_id = match.group(1)
+                value[i] = f'{video_id}'
+            else:
                 raise ValueError("Invalid video link format")
-
         return value
 
     class Config:

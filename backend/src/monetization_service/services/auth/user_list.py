@@ -38,7 +38,7 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
 
         async with get_session_cm() as session:
             query = select(User).where(
-                User.email == email, User.is_active.is_(True)
+                User.email == email
             )
             result = await session.execute(query)
             try:
@@ -60,6 +60,16 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
         person is in it
         """
         check, results = await self.check_user(email=email, password=password)
+        if check:
+            async with get_session_cm() as session:
+                query = user_isactive(email)
+                result = await session.execute(query)
+                result = result.all()
+
+                if not result[0][0]:
+                    return False, "Your account is yet to be verified. Please verify your account."
+        else:
+            return False, "User email or password incorrect"
         return check, results
 
     def __generate_new_password(self, length) -> str:
@@ -167,17 +177,9 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
                 server.sendmail(sender_email, receiver_email, message.as_string())
 
             except smtplib.SMTPRecipientsRefused:
-                async with get_session_cm() as session:
-                    session: AsyncSession
-                    user_query, verification_token_query = delete_user(user_email)
-                    await session.execute(verification_token_query)
-                    await session.execute(user_query)
-                    await session.commit()
-                return False, "Invalid email. Please sign up using a different email"
+                pass
 
         return True, None
-
-
 
     async def verify_user(
         self, token: str

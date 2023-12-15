@@ -99,12 +99,12 @@ def user_watch_privileges(user_email: str):
         select(
             func.json_agg(
                 func.json_build_object(
-                    'User Type', utc.user_type_name,
-                    'Maximum video duration', utc.max_video_duration,
-                    'Watched vs Earned hours ratio', utc.watch_hour_ratio,
-                    'Allowed fetch videos', utc.fetch_video,
-                    'Minimum videos allowed', utc.min_videos_allowed,
-                    'Maximum videos allowed', utc.max_videos_allowed,
+                    'user_type', utc.user_type_name,
+                    'maximum_video_duration', utc.max_video_duration,
+                    'watch_hours_ratio', utc.watch_hour_ratio,
+                    'allowed_fetch_videos', utc.fetch_video,
+                    'minimum_videos_allowed', utc.min_videos_allowed,
+                    'maximum_videos_allowed', utc.max_videos_allowed,
                 )
             ).label('privileges')
         )
