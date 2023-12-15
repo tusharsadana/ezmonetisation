@@ -84,21 +84,22 @@ export default function WatchHours(): JSX.Element {
     }
   };
 
-  const [videoTimes, setVideoTimes] = useState<number[]>(Array(100).fill(0));
+  const videoTimes = Array(100).fill(null);
+  const setIntervalForMinutes = async (videoIndex: number) => {
+    const tempInterval = setInterval(async () => {
+      await videoCompleted(videoIndex);
+    }, 6 * 1000 * 60);
+    updateVideoTime(videoIndex, tempInterval);
 
-  const updateVideoTime = (videoIndex: number, time: number) => {
-    setVideoTimes((prevTimes) => {
-      const newTimes = [...prevTimes];
-      newTimes[videoIndex] = time;
-      return newTimes;
-    });
+  };
+
+  const updateVideoTime = (videoIndex: number, interval: any) => {
+    videoTimes[videoIndex] = interval;
   };
 
   const videoCompleted = async (videoIndex: number) => {
     const videoId = Object.keys(videoMap)[videoIndex];
-    const startTime = videoTimes[videoIndex];
-    const endTime = new Date().getTime();
-    const durationRan = (endTime - startTime) / 1000 / 60;
+    const durationRan = 6 / 60;
 
     try {
       const response = await httpPost<any>(
@@ -110,6 +111,7 @@ export default function WatchHours(): JSX.Element {
         },
         axiosAPIConfig
       );
+      clearInterval(videoTimes[videoIndex]);
       console.log(response.data);
       toast.success("Video " + (videoIndex + 1) + "completed successfully.");
       // show watch hours earned
@@ -121,26 +123,25 @@ export default function WatchHours(): JSX.Element {
 
   const navigate = useNavigate();
 
-  const sliderValue = signal(1);
+  const [sliderValue, setSliderValue] = useState(1);
 
   const user = "GOLD"; // fetch using backend
   const selectedUser = userType.find((u) => u.user === user);
 
-  const maxVideos = selectedUser?.numVideos || 0;
+  const maxVideos = selectedUser?.numVideos || 10;
   const marks = [];
 
   for (let value = 1; value <= maxVideos; value++) {
-    if (value % 5 == 0) {
+    if (value % maxVideos == 0 || value == 1) {
       marks.push({ value, label: `${value}` });
     } else {
       marks.push({ value });
     }
   }
 
-  const handleSliderChange = (event: Event, newValue: number | number[]) => {
-    sliderValue.value = newValue as number;
+  const handleOnChangeSlider = (event: Event, newValue: number | number[]) => {
+    setSliderValue(newValue as number);
   };
-
   const eachVideoTime = selectedUser?.eachVideoTime || 0;
   const ratio = selectedUser?.ratio || 0;
 
@@ -159,7 +160,7 @@ export default function WatchHours(): JSX.Element {
   return (
     <>
       <Typography variant="h3" component="h3" gutterBottom align="left">
-        Earn Watch hours
+        Earn Watch Hours
       </Typography>
       <Typography variant="h6" component="h6" gutterBottom align="left">
         You are{" "}
@@ -229,14 +230,14 @@ export default function WatchHours(): JSX.Element {
           <Slider
             aria-label="Restricted values"
             defaultValue={1}
-            value={sliderValue.value}
-            valueLabelDisplay="off"
+            value={sliderValue}
+            valueLabelDisplay="auto"
             step={null}
-            onChange={handleSliderChange}
+            onChange={handleOnChangeSlider}
             max={100}
             marks={marks}
             sx={{
-              width: "50%",
+              flexGrow: 1,
               padding: "15px",
               marginTop: "5px",
               display: "flex",
@@ -247,9 +248,9 @@ export default function WatchHours(): JSX.Element {
             variant="h6"
             component="h6"
             color="primary"
-            sx={{ padding: "10px" }}
+            sx={{ padding: "10px", flexGrow: 1 }}
           >
-            Videos: {sliderValue.value}
+            Videos: {sliderValue}
           </Typography>
           <Button
             color="primary"
@@ -260,6 +261,7 @@ export default function WatchHours(): JSX.Element {
             }}
             sx={{
               borderRadius: 20,
+              flexGrow: 1,
               textTransform: "none",
               fontSize: "0.9rem",
               boxShadow: "none",
@@ -289,16 +291,11 @@ export default function WatchHours(): JSX.Element {
                 }}
               >
                 <YouTube
-                  videoId="8-E1LbChJ88"
+                  videoId={video_link}
                   opts={opts}
                   onEnd={() => videoCompleted(index)}
-                  onPlay={() => {
-                    setInterval(() => {
-                      const currentTime = new Date().getTime();
-                      updateVideoTime(index, currentTime);
-                    }, 1000);
-                    console.log(videoTimes[index]);
-                  }}
+                  onPlay={() => { setIntervalForMinutes(index) }
+                  }
                 />
               </div>
             </Paper>
