@@ -8,60 +8,36 @@ import {
   Button,
 } from "@mui/material";
 import CallMadeIcon from "@mui/icons-material/CallMade";
-import { signal } from "@preact/signals-react";
 import { useNavigate } from "react-router-dom";
 import { CallReceived } from "@mui/icons-material";
 import { useEffect, useState } from "react";
-import {
-  axiosAPI,
-  axiosAPIConfig,
-  httpGet,
-  httpPost,
-} from "../../services/api.service";
+import { axiosAPIConfig, httpGet, httpPost } from "../../services/api.service";
 import Cookies from "universal-cookie";
 import { USER_EMAIL } from "../../contexts/auth.context";
-import { IVideo, IVideoMap } from "../../models/watch.model";
+import { IUserPrivileges, IVideo, IVideoMap } from "../../models/watch.model";
 import YouTube, { YouTubeProps } from "react-youtube";
 import { toast } from "react-toastify";
 
 export default function WatchHours(): JSX.Element {
-  const userType = [
-    {
-      user: "IRON",
-      color: "#61666A",
-      eachVideoTime: 6,
-      ratio: 0.1,
-      numVideos: 1,
-    },
-    {
-      user: "BRONZE",
-      color: "#CD7F32",
-      eachVideoTime: 6,
-      ratio: 0.5,
-      numVideos: 10,
-    },
-    {
-      user: "SILVER",
-      color: "#C0C0C0",
-      eachVideoTime: 6,
-      ratio: 1,
-      numVideos: 20,
-    },
-    {
-      user: "GOLD",
-      color: "#FFD700",
-      eachVideoTime: 6,
-      ratio: 2,
-      numVideos: 50,
-    },
-    {
-      user: "PLATINUM",
-      color: "#800080",
-      eachVideoTime: 6,
-      ratio: 100,
-      numVideos: 100,
-    },
-  ];
+  const [userPrivileges, setUserPrivileges] = useState<IUserPrivileges>();
+  useEffect(() => {
+    const setPrivilegeValues = async () => {
+      try {
+        const userEmail = cookie.get(USER_EMAIL);
+        const urlWithParams = `/v1/video/user-watch-hours-privileges?user_email=${userEmail}`;
+        const response = await httpGet<IUserPrivileges>(
+          urlWithParams,
+          axiosAPIConfig
+        );
+        setUserPrivileges(response);
+        console.log(userPrivileges);
+      } catch (error) {
+        console.error("Error fetching user privileges:", error);
+      }
+    };
+
+    setPrivilegeValues();
+  }, []);
 
   const cookie = new Cookies();
   const [videoMap, setVideoMap] = useState<IVideoMap>({});
@@ -71,10 +47,10 @@ export default function WatchHours(): JSX.Element {
       const userEmail = cookie.get(USER_EMAIL);
       const numberOfVideos = 1;
       const urlWithParams = `/v1/video/fetch-videos?user_email=${userEmail}&number_of_videos=${numberOfVideos}`;
-      const data = await httpGet<IVideo[]>(urlWithParams, axiosAPIConfig);
+      const response = await httpGet<IVideo[]>(urlWithParams, axiosAPIConfig);
 
       setVideoMap(
-        data.reduce((acc, { video_id, video_link }, index) => {
+        response.reduce((acc, { video_id, video_link }, index) => {
           acc[video_id] = { video_link, index };
           return acc;
         }, {} as IVideoMap)
@@ -85,20 +61,18 @@ export default function WatchHours(): JSX.Element {
   };
 
   const videoTimes = Array(100).fill(null);
-  const setIntervalForMinutes = async (videoIndex: number) => {
+  const setIntervalForMinutes = async (videoIndex: number, videoId: string) => {
     const tempInterval = setInterval(async () => {
-      await videoCompleted(videoIndex);
+      await videoCompleted(videoIndex, videoId);
     }, 6 * 1000 * 60);
     updateVideoTime(videoIndex, tempInterval);
-
   };
 
   const updateVideoTime = (videoIndex: number, interval: any) => {
     videoTimes[videoIndex] = interval;
   };
 
-  const videoCompleted = async (videoIndex: number) => {
-    const videoId = Object.keys(videoMap)[videoIndex];
+  const videoCompleted = async (videoIndex: number, videoId: string) => {
     const durationRan = 6 / 60;
 
     try {
@@ -114,7 +88,6 @@ export default function WatchHours(): JSX.Element {
       clearInterval(videoTimes[videoIndex]);
       console.log(response.data);
       toast.success("Video " + (videoIndex + 1) + "completed successfully.");
-      // show watch hours earned
       updateVideoTime(videoIndex, 0);
     } catch (error) {
       console.error("Error completing video:", error);
@@ -122,13 +95,13 @@ export default function WatchHours(): JSX.Element {
   };
 
   const navigate = useNavigate();
+  const maxVideos = userPrivileges?.maximum_videos_allowed || 10;
+  const eachVideoTime = userPrivileges?.maximum_video_duration || 0;
+  const ratio = userPrivileges?.watch_hours_ratio || 0;
+  const userType = userPrivileges?.user_type || "Free User";
+  const watchHoursFor10Videos = (10 * eachVideoTime * ratio) / 60;
 
   const [sliderValue, setSliderValue] = useState(1);
-
-  const user = "GOLD"; // fetch using backend
-  const selectedUser = userType.find((u) => u.user === user);
-
-  const maxVideos = selectedUser?.numVideos || 10;
   const marks = [];
 
   for (let value = 1; value <= maxVideos; value++) {
@@ -142,10 +115,6 @@ export default function WatchHours(): JSX.Element {
   const handleOnChangeSlider = (event: Event, newValue: number | number[]) => {
     setSliderValue(newValue as number);
   };
-  const eachVideoTime = selectedUser?.eachVideoTime || 0;
-  const ratio = selectedUser?.ratio || 0;
-
-  const watchHoursFor10Videos = (10 * eachVideoTime * ratio) / 60;
 
   const opts: YouTubeProps["opts"] = {
     height: "200",
@@ -165,9 +134,12 @@ export default function WatchHours(): JSX.Element {
       <Typography variant="h6" component="h6" gutterBottom align="left">
         You are{" "}
         <Chip
-          label={selectedUser?.user}
+          label={userType}
           color="primary"
-          sx={{ backgroundColor: selectedUser?.color }}
+          sx={{
+            backgroundColor:
+            userType === "Free User" ? "#6E759F" : "#5569ff",
+          }}
         />{" "}
         Member. You will have to watch these videos. Every video will run for{" "}
         {eachVideoTime} Minutes. For every 10 videos you watch for{" "}
@@ -189,7 +161,7 @@ export default function WatchHours(): JSX.Element {
         }}
       >
         <Typography variant="h6" component="h6" gutterBottom align="left">
-          You can watch up to {selectedUser?.numVideos} Videos at a time. To
+          You can watch up to {maxVideos} Videos at a time. To
           increase your limit, please upgrade your plan.{" "}
         </Typography>
         <Button
@@ -226,7 +198,6 @@ export default function WatchHours(): JSX.Element {
           How many videos you want to watch at a time?
         </Typography>
         <Grid container sx={{ display: "flex", gap: "50px" }}>
-          {/* not changing values, need to check */}
           <Slider
             aria-label="Restricted values"
             defaultValue={1}
@@ -287,15 +258,16 @@ export default function WatchHours(): JSX.Element {
               <div
                 style={{
                   position: "relative",
-                  // filter: "blur(2px)",
+                  filter: "blur(1.2px)",
                 }}
               >
                 <YouTube
                   videoId={video_link}
                   opts={opts}
-                  onEnd={() => videoCompleted(index)}
-                  onPlay={() => { setIntervalForMinutes(index) }
-                  }
+                  onEnd={() => videoCompleted(index, videoId)}
+                  onPlay={() => {
+                    setIntervalForMinutes(index, videoId);
+                  }}
                 />
               </div>
             </Paper>

@@ -2,7 +2,6 @@ import { createContext, useContext, useState, useEffect } from "react";
 import Cookies from "universal-cookie";
 import React, { ReactNode } from "react";
 import { IAuthState } from "../models/auth.model";
-import path from "path";
 
 const initialAuthState: IAuthState = {
     isAuthenticated: false,
