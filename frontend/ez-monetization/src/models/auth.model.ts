@@ -22,3 +22,8 @@ export interface ISignIn {
     email: string;
     password: string;
 }
+
+export interface IUserDetails {
+    first_name: string, 
+    last_name: string
+}

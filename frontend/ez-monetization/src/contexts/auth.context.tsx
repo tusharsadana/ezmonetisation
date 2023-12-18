@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import Cookies from "universal-cookie";
 import React, { ReactNode } from "react";
 import { IAuthState } from "../models/auth.model";
+import { getUserDetails } from "../services/auth.service";
 
 const initialAuthState: IAuthState = {
     isAuthenticated: false,
@@ -16,6 +17,8 @@ export const AuthContext = createContext<IAuthState>(initialAuthState);
 export const ACCESS_TOKEN_KEY = "ACCESS_TOKEN_KEY";
 export const REFRESH_TOKEN_KEY = "REFRESH_TOKEN_KEY";
 export const USER_EMAIL = "USER_EMAIL";
+export const FIRST_NAME = "FIRST_NAME";
+export const LAST_NAME = "LAST_NAME";
 
 export function AuthProvider({ children }: { children: ReactNode }): React.ReactElement {
     const cookies = new Cookies();
@@ -42,6 +45,19 @@ export function AuthProvider({ children }: { children: ReactNode }): React.React
         if (storedAccessToken) {
             setAccessToken(storedAccessToken);
         }
+    }, []);
+
+    useEffect(() => {
+      const userEmail = cookies.get(USER_EMAIL);
+      getUserDetails(userEmail)
+        .then((res) => {
+          cookies.set(FIRST_NAME, res.first_name, { path: "/" });
+          cookies.set(LAST_NAME, res.last_name, { path: "/" });
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }, []);
 
     function login(newAccessToken: string, newRefreshToken: string, userEmail: string) {
