@@ -137,8 +137,7 @@ export default function WatchHours(): JSX.Element {
           label={userType}
           color="primary"
           sx={{
-            backgroundColor:
-            userType === "Free User" ? "#6E759F" : "#5569ff",
+            backgroundColor: userType === "Free User" ? "#6E759F" : "#5569ff",
           }}
         />{" "}
         Member. You will have to watch these videos. Every video will run for{" "}
@@ -156,13 +155,13 @@ export default function WatchHours(): JSX.Element {
           borderRadius: 5,
           marginTop: 2,
           fontWeight: "bold",
-          paddingLeft: "20px",
+          paddingLeft: "2%",
           color: "#5569ff",
         }}
       >
         <Typography variant="h6" component="h6" gutterBottom align="left">
-          You can watch up to {maxVideos} Videos at a time. To
-          increase your limit, please upgrade your plan.{" "}
+          You can watch up to {maxVideos} Videos at a time. To increase your
+          limit, please upgrade your plan.{" "}
         </Typography>
         <Button
           color="primary"
@@ -175,17 +174,18 @@ export default function WatchHours(): JSX.Element {
             borderRadius: 20,
             textTransform: "none",
             boxShadow: "none",
-            marginLeft: "10px",
-            marginBottom: "5px",
+            marginLeft: "5%",
             textShadow: "none",
-            "&:hover": {},
+            fontSize: "small",
+            minWidth: "18%",
+            textOverflow: "ellipsis",
+            overflow: "hidden",
           }}
           endIcon={<CallMadeIcon />}
         >
           Upgrade Now
         </Button>
       </Box>
-
       <Box
         sx={{
           padding: 4,
@@ -194,60 +194,74 @@ export default function WatchHours(): JSX.Element {
           paddingLeft: "20px",
         }}
       >
-        <Typography variant="h6" component="h6" gutterBottom align="left">
-          How many videos you want to watch at a time?
-        </Typography>
-        <Grid container sx={{ display: "flex", gap: "50px" }}>
-          <Slider
-            aria-label="Restricted values"
-            defaultValue={1}
-            value={sliderValue}
-            valueLabelDisplay="auto"
-            step={null}
-            onChange={handleOnChangeSlider}
-            max={100}
-            marks={marks}
-            sx={{
-              flexGrow: 1,
-              padding: "15px",
-              marginTop: "5px",
-              display: "flex",
-              justifyContent: "flex-start",
-            }}
-          />
-          <Typography
-            variant="h6"
-            component="h6"
-            color="primary"
-            sx={{ padding: "10px", flexGrow: 1 }}
-          >
-            Videos: {sliderValue}
-          </Typography>
-          <Button
-            color="primary"
-            variant="contained"
-            size="medium"
-            onClick={() => {
-              fetchData();
-            }}
-            sx={{
-              borderRadius: 20,
-              flexGrow: 1,
-              textTransform: "none",
-              fontSize: "0.9rem",
-              boxShadow: "none",
-              textShadow: "none",
-              marginBottom: "15px",
-              marginTop: "5px",
-              "&:hover": {},
-              padding: "10px 10px",
-            }}
-            startIcon={<CallReceived />}
-          >
-            Fetch Videos
-          </Button>
+        <Grid container sx={{ display: "flex", alignItems: "center" }}>
+          <Grid item xs={6}>
+            <Typography variant="h6" component="h6" gutterBottom align="left">
+              How many videos do you want to watch at a time?
+            </Typography>
+          </Grid>
+          <Grid item xs={2}>
+            <Typography
+              variant="h6"
+              component="h6"
+              color="primary"
+              sx={{ padding: "10px" }}
+            >
+              Videos: {sliderValue}
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid
+          container
+          sx={{ display: "flex", gap: "20px", justifyContent: "space-between" }}
+        >
+          <Grid item xs={6}>
+            <Slider
+              aria-label="Restricted values"
+              defaultValue={1}
+              value={sliderValue}
+              valueLabelDisplay="auto"
+              step={null}
+              onChange={handleOnChangeSlider}
+              max={100}
+              marks={marks}
+              sx={{
+                flexGrow: 2,
+                padding: "15px",
+                marginTop: "5px",
+                display: "flex",
+                justifyContent: "flex-start",
+              }}
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <Button
+              color="primary"
+              variant="contained"
+              size="medium"
+              onClick={() => {
+                fetchData();
+              }}
+              sx={{
+                borderRadius: 20,
+                flexGrow: 1,
+                textTransform: "none",
+                fontSize: "0.9rem",
+                boxShadow: "none",
+                textShadow: "none",
+                marginBottom: "15px",
+                marginTop: "5px",
+                "&:hover": {},
+                padding: "10px 10px",
+              }}
+              startIcon={<CallReceived />}
+            >
+              Fetch Videos
+            </Button>
+          </Grid>
         </Grid>
       </Box>
+
       <Grid container spacing={2} justifyContent="flex-start">
         {Object.entries(videoMap).map(([videoId, { video_link, index }]) => (
           <Grid item xs={12} sm={6} md={3} key={index}>
