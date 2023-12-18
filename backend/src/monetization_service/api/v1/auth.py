@@ -133,6 +133,22 @@ async def sign_in(
     return TokenPair(access=access, refresh=refresh)
 
 
+@auth_router.get(
+    path="/user_details",
+    description="Get user details",
+)
+async def user_details(
+    user_email: str,
+    auth_service: UserListAuth | SamlAuth = Depends(get_auth_service),
+):
+    check, data = await auth_service.user_details(user_email)
+    if check:
+        return ORJSONResponse(content=data,
+                              status_code=status.HTTP_200_OK)
+    return ORJSONResponse(content={"description": data},
+                          status_code=status.HTTP_400_BAD_REQUEST)
+
+
 @auth_router.post(
     path="/sign-out",
     description="Sign user out",

@@ -6,7 +6,7 @@ from src.monetization_service.models.user import User, UserTypeConstants as utc,
 
 
 def user_exists(user_email: str):
-    query = select(User).where(and_(User.email == user_email, User.is_active))
+    query = select(User.first_name, User.last_name).where(and_(User.email == user_email, User.is_active))
     return query
 
 
