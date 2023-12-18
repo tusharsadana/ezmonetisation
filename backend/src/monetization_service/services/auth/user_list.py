@@ -19,7 +19,7 @@ from src.monetization_service.core.db import get_session_cm
 from src.monetization_service.models.user import User
 from src.monetization_service.queries.users import (
     update_user_password, add_new_user_query, user_isactive, get_verification_token, add_verification_token,
-    token_isvalid, activate_user, delete_user
+    token_isvalid, activate_user, user_exists
 )
 from src.monetization_service.schemas.api.v1.auth import UserSchema, UserSignUp
 from src.monetization_service.services.auth.base import BaseAuth
@@ -199,6 +199,21 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
             await session.commit()
 
             return True, "Your email has been verified"
+
+    async def user_details(
+        self, user_email: str
+    ):
+        async with get_session_cm() as session:
+            session: AsyncSession
+            query = user_exists(user_email)
+            result = await session.execute(query)
+            result = result.all()
+            if len(result):
+                data = {"first_name": result[0][0], "last_name": result[0][1]}
+                return True, data
+            else:
+                return False, "Invalid user_email"
+
 
 
 

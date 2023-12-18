@@ -47,7 +47,6 @@ Base = declarative_base()
 
 async def get_session():
     session = async_session_maker()
-    # yield session
     try:
         yield session
     finally:
