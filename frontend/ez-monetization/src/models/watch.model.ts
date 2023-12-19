@@ -1,3 +1,10 @@
+export interface IWatchHoursState {
+  videoMap: IVideoMap,
+  maxVideos: number | undefined,
+  setVideoMap: React.Dispatch<React.SetStateAction<IVideoMap>>,
+  setMaxVideos : React.Dispatch<React.SetStateAction<number | undefined>>
+}
+
 export interface IVideo {
   video_id: string;
   video_link: string;
