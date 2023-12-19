@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }): React.React
         }
     }, []);
 
-    useEffect(() => {
+    const userDetails = async () => {
       const userEmail = cookies.get(USER_EMAIL);
       getUserDetails(userEmail)
         .then((res) => {
@@ -58,12 +58,13 @@ export function AuthProvider({ children }: { children: ReactNode }): React.React
         .catch((err) => {
           console.log(err);
         });
-    }, []);
+    };
 
     function login(newAccessToken: string, newRefreshToken: string, userEmail: string) {
         cookies.set(ACCESS_TOKEN_KEY, newAccessToken, { path: "/" });
         cookies.set(REFRESH_TOKEN_KEY, newRefreshToken, { path: "/" });
         cookies.set(USER_EMAIL, userEmail, { path: "/" });
+        userDetails();
         setAccessToken(newAccessToken);
         setRefreshToken(newRefreshToken);
         setUserEmail(userEmail);
