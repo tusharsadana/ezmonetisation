@@ -12,7 +12,7 @@ const initialWatchHoursState: IWatchHoursState = {
 
 export const WatchHoursContext = createContext<IWatchHoursState>(initialWatchHoursState);
 
-export function AuthProvider({ children }: { children: ReactNode }): React.ReactElement {
+export function WatchHoursProvider({ children }: { children: ReactNode }): React.ReactElement {
     const [videoMap, setVideoMap] = useState<IVideoMap>({});
     const [maxVideos, setMaxVideos] = useState<number | undefined>();
     
