@@ -1,8 +1,10 @@
 export interface IWatchHoursState {
   videoMap: IVideoMap,
   maxVideos: number | undefined,
+  blurVideo: boolean,
   setVideoMap: React.Dispatch<React.SetStateAction<IVideoMap>>,
   setMaxVideos : React.Dispatch<React.SetStateAction<number | undefined>>
+  setBlurVideo : React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export interface IVideo {

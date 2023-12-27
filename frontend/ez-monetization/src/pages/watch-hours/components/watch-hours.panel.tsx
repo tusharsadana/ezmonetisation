@@ -1,4 +1,12 @@
-import { Grid, Paper, Typography } from "@mui/material";
+import {
+  Grid,
+  Paper,
+  Typography,
+  FormGroup,
+  FormControlLabel,
+  Switch,
+  Box,
+} from "@mui/material";
 import { useContext } from "react";
 import { httpPost } from "../../../services/api.service";
 import Cookies from "universal-cookie";
@@ -12,7 +20,7 @@ import { WatchHoursContext } from "../../../contexts/watch-hours.context";
 const WatchHoursPanel: React.FC = () => {
   const cookie = new Cookies();
 
-  const { videoMap } = useContext(WatchHoursContext);
+  const { videoMap, blurVideo, setBlurVideo } = useContext(WatchHoursContext);
 
   const videoTimes = Array(100).fill(null);
   const setIntervalForMinutes = async (videoIndex: number, videoId: string) => {
@@ -41,7 +49,7 @@ const WatchHoursPanel: React.FC = () => {
       );
       clearInterval(videoTimes[videoIndex]);
       console.log(response.data);
-      toast.success("Video " + (videoIndex + 1) + "completed successfully.");
+      toast.success("Video " + (videoIndex + 1) + " completed successfully.");
       updateVideoTime(videoIndex, 0);
     } catch (error) {
       console.error("Error completing video:", error);
@@ -58,35 +66,53 @@ const WatchHoursPanel: React.FC = () => {
     },
   };
 
-
   return (
     <>
-      <Grid container spacing={2} justifyContent="flex-start">
-        {Object.entries(videoMap).map(([videoId, { video_link, index }]) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Paper elevation={0} sx={{ padding: 2, textAlign: "left" }}>
-              <Typography variant="h6" align="left">
-                Video {index + 1}
-              </Typography>
-              <div
-                style={{
-                  position: "relative",
-                  filter: "blur(1.2px)",
+      <Box
+        sx={{
+          paddingLeft: "20px",
+        }}
+      >
+        <FormGroup sx={{ paddingLeft: "2%" }}>
+          <FormControlLabel
+            control={
+              <Switch
+                defaultChecked
+                onChange={() => {
+                  setBlurVideo(!blurVideo);
                 }}
-              >
-                <YouTube
-                  videoId={video_link}
-                  opts={opts}
-                  onEnd={() => videoCompleted(index, videoId)}
-                  onPlay={() => {
-                    setIntervalForMinutes(index, videoId);
+              />
+            }
+            label="Blur"
+          />
+        </FormGroup>
+        <Grid container spacing={2} justifyContent="flex-start">
+          {Object.entries(videoMap).map(([videoId, { video_link, index }]) => (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <Paper elevation={0} sx={{ padding: 2, textAlign: "left" }}>
+                <Typography variant="h6" align="left">
+                  Video {index + 1}
+                </Typography>
+                <div
+                  style={{
+                    position: "relative",
+                    filter: blurVideo ? "blur(1.2px)" : "none",
                   }}
-                />
-              </div>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
+                >
+                  <YouTube
+                    videoId={video_link}
+                    opts={opts}
+                    onEnd={() => videoCompleted(index, videoId)}
+                    onPlay={() => {
+                      setIntervalForMinutes(index, videoId);
+                    }}
+                  />
+                </div>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
     </>
   );
 };
