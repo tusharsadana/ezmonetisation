@@ -34,7 +34,7 @@ function App() {
                               <h1>Subscribers</h1>
                             </Grid>
                             <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
-                              <h1>Subscribers</h1>
+                              <h3>Coming soon! Stay tuned</h3>
                             </Grid>
                           </Grid>
                         </>

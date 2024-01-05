@@ -1,4 +1,4 @@
-import { Grid, Slider, Box, Typography, Button } from "@mui/material";
+import { Grid, Slider, Box, Typography, Button, FormGroup, FormControlLabel, Switch } from "@mui/material";
 import { CallReceived } from "@mui/icons-material";
 import { useState, useContext } from "react";
 import { httpGet } from "../../../services/api.service";
@@ -9,7 +9,7 @@ import { axiosAPIConfig } from "../../../services/api.service";
 import { WatchHoursContext } from "../../../contexts/watch-hours.context";
 
 const WatchHoursSlider: React.FC = () => {
-  const { setVideoMap, maxVideos } =
+  const { setVideoMap, maxVideos, setBlurVideo, blurVideo } =
     useContext(WatchHoursContext);
   const cookie = new Cookies();
 
@@ -59,8 +59,8 @@ const WatchHoursSlider: React.FC = () => {
           paddingLeft: "20px",
         }}
       >
-        <Grid container sx={{ display: "flex", alignItems: "center" }}>
-          <Grid item xs={6}>
+        <Grid container gap="9px" sx={{ display: "flex", alignItems: "center" }}>
+          <Grid item xs={7}>
             <Typography variant="h6" component="h6" gutterBottom align="left">
               How many videos do you want to watch at a time?
             </Typography>
@@ -70,10 +70,25 @@ const WatchHoursSlider: React.FC = () => {
               variant="h6"
               component="h6"
               color="primary"
-              sx={{ padding: "10px" }}
+              sx={{ padding: "7px" }}
             >
               Videos: {sliderValue}
             </Typography>
+          </Grid>
+          <Grid item xs={2}>
+            <FormGroup>
+            <FormControlLabel
+              control={
+                <Switch
+                  defaultChecked
+                  onChange={() => {
+                    setBlurVideo(!blurVideo);
+                  }}
+                />
+              }
+              label="Blur"
+            />
+          </FormGroup>
           </Grid>
         </Grid>
         <Grid
@@ -108,7 +123,7 @@ const WatchHoursSlider: React.FC = () => {
                 fetchData();
               }}
               sx={{
-                borderRadius: 20,
+                borderRadius: 2,
                 flexGrow: 1,
                 textTransform: "none",
                 fontSize: "0.9rem",
@@ -116,7 +131,6 @@ const WatchHoursSlider: React.FC = () => {
                 textShadow: "none",
                 marginBottom: "15px",
                 marginTop: "5px",
-                "&:hover": {},
                 padding: "10px 10px",
               }}
               startIcon={<CallReceived />}

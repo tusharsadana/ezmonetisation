@@ -38,7 +38,6 @@ export default function Login(): JSX.Element {
     const handleLogin = () => {
         signIn(email, password)
             .then((res) => {
-                console.log(res)
                 login(res.access, res.refresh, email);
                 toast.success("Logged in successfully");
             })

@@ -2,12 +2,19 @@ import { Grid, Typography, MenuItem, Paper } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import SubscriptionsIcon from "@mui/icons-material/Subscriptions";
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from "react-router-dom";
 import { signal } from "@preact/signals-react";
+import Cookies from "universal-cookie";
+import { AuthContext } from "../../contexts/auth.context";
+import { useContext } from "react";
 
 const selectedMenuItem = signal(0);
 const SidebarMenu: React.FC = () => {
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
+
+  const cookie = new Cookies();
   const menuItems = [
     {
       label: "Dashboard",
@@ -23,6 +30,11 @@ const SidebarMenu: React.FC = () => {
       label: "Subscribers",
       Icon: SubscriptionsIcon,
       path: "/sub",
+    },
+    {
+      label: "Logout",
+      Icon: LogoutIcon,
+      path: "/login",
     }
   ];
   return (
@@ -43,6 +55,11 @@ const SidebarMenu: React.FC = () => {
             key={index}
             onClick={() => {
               selectedMenuItem.value = index;
+              if(item.label === "Logout")
+              {
+                logout();
+                selectedMenuItem.value = 0;
+              }
               navigate(item.path);
             }}
             sx={{

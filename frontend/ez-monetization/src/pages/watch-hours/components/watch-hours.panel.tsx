@@ -20,7 +20,7 @@ import { WatchHoursContext } from "../../../contexts/watch-hours.context";
 const WatchHoursPanel: React.FC = () => {
   const cookie = new Cookies();
 
-  const { videoMap, blurVideo, setBlurVideo } = useContext(WatchHoursContext);
+  const { videoMap, blurVideo } = useContext(WatchHoursContext);
 
   const videoTimes = Array(100).fill(null);
   const setIntervalForMinutes = async (videoIndex: number, videoId: string) => {
@@ -73,19 +73,6 @@ const WatchHoursPanel: React.FC = () => {
           paddingLeft: "20px",
         }}
       >
-        <FormGroup sx={{ paddingLeft: "2%" }}>
-          <FormControlLabel
-            control={
-              <Switch
-                defaultChecked
-                onChange={() => {
-                  setBlurVideo(!blurVideo);
-                }}
-              />
-            }
-            label="Blur"
-          />
-        </FormGroup>
         <Grid container spacing={2} justifyContent="flex-start">
           {Object.entries(videoMap).map(([videoId, { video_link, index }]) => (
             <Grid item xs={12} sm={6} md={3} key={index}>

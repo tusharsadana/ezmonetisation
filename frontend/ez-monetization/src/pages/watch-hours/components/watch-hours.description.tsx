@@ -25,7 +25,6 @@ const WatchHoursDescription: React.FC = () => {
           axiosAPIConfig
         );
         setUserPrivileges(response);
-        console.log(userPrivileges);
       } catch (error) {
         console.error("Error fetching user privileges:", error);
       }
@@ -34,7 +33,11 @@ const WatchHoursDescription: React.FC = () => {
     setPrivilegeValues();
   }, []);
 
-  setMaxVideos(userPrivileges?.maximum_videos_allowed === undefined ? 10 : userPrivileges?.maximum_videos_allowed);
+  setMaxVideos(
+    userPrivileges?.maximum_videos_allowed === undefined
+      ? 10
+      : userPrivileges?.maximum_videos_allowed
+  );
   const eachVideoTime = userPrivileges?.maximum_video_duration || 0;
   const ratio = userPrivileges?.watch_hours_ratio || 0;
   const userType = userPrivileges?.user_type || "Free User";
@@ -54,52 +57,54 @@ const WatchHoursDescription: React.FC = () => {
             backgroundColor: userType === "Free User" ? "#6E759F" : "#5569ff",
           }}
         />{" "}
-        Member. You will have to watch these videos. Every video will run for{" "}
+        . You will have to watch these videos. Every video will run for{" "}
         {eachVideoTime} Minutes. For every 10 videos you watch for{" "}
         {eachVideoTime} Minutes, you will get {watchHoursFor10Videos.toFixed(2)}{" "}
         watch hours. If you watch 100 videos you will get{" "}
         {(100 * eachVideoTime * ratio) / 60} watch hours.
       </Typography>
-      <Box
-        display="flex"
-        alignItems="center"
-        sx={{
-          backgroundColor: "aquamarine",
-          padding: 2,
-          borderRadius: 5,
-          marginTop: 2,
-          fontWeight: "bold",
-          paddingLeft: "2%",
-          color: "#5569ff",
-        }}
-      >
-        <Typography variant="h6" component="h6" gutterBottom align="left">
-          You can watch up to {maxVideos} Videos at a time. To increase your
-          limit, please upgrade your plan.{" "}
-        </Typography>
-        <Button
-          color="primary"
-          variant="contained"
-          size="medium"
-          onClick={() => {
-            navigate("/plans");
-          }}
+      {userType !== "Premium User" ? (
+        <Box
+          display="flex"
+          alignItems="center"
           sx={{
-            borderRadius: 20,
-            textTransform: "none",
-            boxShadow: "none",
-            marginLeft: "5%",
-            textShadow: "none",
-            fontSize: "small",
-            minWidth: "18%",
-            textOverflow: "ellipsis",
-            overflow: "hidden",
+            backgroundColor: "aquamarine",
+            padding: 2,
+            borderRadius: 2,
+            marginTop: 2,
+            fontWeight: "bold",
+            paddingLeft: "2%",
+            color: "#5569ff",
           }}
-          endIcon={<CallMadeIcon />}
         >
-          Upgrade Now
-        </Button>
-      </Box>
+          <Typography variant="h6" component="h6" gutterBottom align="left">
+            You can watch up to {maxVideos} Videos at a time. To increase your
+            limit, please upgrade your plan.{" "}
+          </Typography>
+          <Button
+            color="primary"
+            variant="contained"
+            size="medium"
+            onClick={() => {
+              navigate("/plans");
+            }}
+            sx={{
+              borderRadius: 2,
+              textTransform: "none",
+              boxShadow: "none",
+              marginLeft: "5%",
+              textShadow: "none",
+              fontSize: "small",
+              minWidth: "18%",
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+            }}
+            endIcon={<CallMadeIcon />}
+          >
+            Upgrade Now
+          </Button>
+        </Box>
+      ) : null}
     </>
   );
 };

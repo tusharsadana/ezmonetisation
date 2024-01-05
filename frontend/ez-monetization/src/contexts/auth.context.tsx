@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
 import Cookies from "universal-cookie";
 import React, { ReactNode } from "react";
 import { IAuthState } from "../models/auth.model";
@@ -38,6 +38,9 @@ export function AuthProvider({ children }: { children: ReactNode }): React.React
         if (accessToken && refreshToken) {
             setIsAuthenticated(true);
         }
+        else {
+            logout();
+        }
     }, [accessToken, refreshToken]);
 
     useEffect(() => {
@@ -53,7 +56,6 @@ export function AuthProvider({ children }: { children: ReactNode }): React.React
         .then((res) => {
           cookies.set(FIRST_NAME, res.first_name, { path: "/" });
           cookies.set(LAST_NAME, res.last_name, { path: "/" });
-          console.log(res);
         })
         .catch((err) => {
           console.log(err);
@@ -75,6 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }): React.React
         cookies.remove(ACCESS_TOKEN_KEY, { path: "/" });
         cookies.remove(REFRESH_TOKEN_KEY, { path: "/" });
         cookies.remove(USER_EMAIL, { path: "/" });
+        cookies.remove(FIRST_NAME, { path: "/" });
+        cookies.remove(LAST_NAME, { path: "/" });
         setAccessToken(null);
         setRefreshToken(null);
         setUserEmail(null);

@@ -11,11 +11,11 @@ const Home: React.FC = () => {
     return (
         <>
             {/* <Appbar /> */}
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', width: "100%"}}>
                 <Sidebar />
                 <Box
                     sx={{
-                        flexGrow: 1, p: 3, width: { sm: `calc(100% - ${240}px)` },
+                        flexGrow: 1, p: 3, width: { sm: `calc(100% - ${240}px)`},
                         overflow: 'auto'
                     }}
                 >
