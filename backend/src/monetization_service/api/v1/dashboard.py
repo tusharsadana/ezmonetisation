@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 # project
 from src.monetization_service.core.db import get_session
-from src.monetization_service.schemas.api.v1.dashboard import TimePeriodEnum, DateFilter
+from src.monetization_service.schemas.api.v1.dashboard import DateFilter
 from src.monetization_service.services.auth import Authorized
 
 from src.monetization_service.services.dashboard.dashboard import (
@@ -30,15 +30,13 @@ dashboard_router = APIRouter(
 @dashboard_router.get("/subscribers-earned-graph")
 async def subscribers_earned_graph(
     user_email: str,
-    time_period: TimePeriodEnum = Query(
-        default=TimePeriodEnum.WEEK.value, alias="time_period"
-    ),
+    date_filter: DateFilter = Depends(),
     service: DashboardService = Depends(get_dashboard_service),
     session: AsyncSession = Depends(get_session),
 ):
-    is_created, output = await service.subscriber_earn_graph(session, user_email, time_period)
+    is_created, output = await service.subscriber_earn_graph(session, user_email, date_filter)
     if is_created:
-        return StreamingResponse(output, media_type="image/png")
+        return ORJSONResponse(output, status_code=status.HTTP_200_OK)
     return ORJSONResponse(
             {"message": output}, status_code=status.HTTP_400_BAD_REQUEST
         )

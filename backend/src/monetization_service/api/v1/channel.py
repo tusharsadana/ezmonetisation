@@ -1,11 +1,10 @@
 # stdlib
 import logging
-from typing import Optional
 from uuid import UUID
 
 # thirdparty
-from fastapi import APIRouter, Depends, Query, status
-from fastapi.responses import ORJSONResponse, Response
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import ORJSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # project
@@ -25,6 +24,22 @@ channel_router = APIRouter(
     tags=["Channel"],
     dependencies=[Depends(Authorized(0, 1, 2))],
 )
+
+
+@channel_router.get("/user-subscriber-privileges")
+async def user_subscriber_privileges(
+    user_email: str,
+    service: ChannelService = Depends(get_channel_service),
+    session: AsyncSession = Depends(get_session),
+):
+    success, data = await service.user_subscriber_privileges(session, user_email)
+    if success:
+        return ORJSONResponse(
+            data, status_code=status.HTTP_200_OK
+        )
+    return ORJSONResponse(
+            {"message": data}, status_code=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @channel_router.post("/add-channel")

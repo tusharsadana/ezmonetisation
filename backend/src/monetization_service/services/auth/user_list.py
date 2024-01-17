@@ -12,15 +12,18 @@ from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from datetime import datetime, timedelta
 
 # project
 from src.common.utils import SingletonWithArgs
 from src.monetization_service.core.db import get_session_cm
-from src.monetization_service.models.user import User
+from src.monetization_service.models.user import User, Subscriptions
+from src.monetization_service.queries.table import insert_to_table_by_model
 from src.monetization_service.queries.users import (
     update_user_password, add_new_user_query, user_isactive, get_verification_token, add_verification_token,
     token_isvalid, activate_user, user_exists
 )
+from src.monetization_service.queries.subscription import user_in_subscription, update_user_type, subscribe_user
 from src.monetization_service.schemas.api.v1.auth import UserSchema, UserSignUp
 from src.monetization_service.services.auth.base import BaseAuth
 
@@ -55,10 +58,25 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
     async def login(
         self, email: str, password: str
     ) -> tuple[bool, UserSchema | None]:
+
         """
         Downloads file with list with users and checks if the
         person is in it
         """
+        query = user_in_subscription(email)
+        async with get_session_cm() as session:
+            result = await session.execute(query)
+            if result:
+                result = result.all()
+                data = result[0]
+                if data[0]:
+                    if data[1] < datetime.now():
+                        query = update_user_type(email, 1)
+                        await session.execute(query)
+                        query = subscribe_user(email, False)
+                        await session.execute(query)
+                        await session.commit()
+
         check, results = await self.check_user(email=email, password=password)
         if check:
             async with get_session_cm() as session:
@@ -68,6 +86,7 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
 
                 if not result[0][0]:
                     return False, "Your account is yet to be verified. Please verify your account."
+
         else:
             return False, "User email or password incorrect"
         return check, results

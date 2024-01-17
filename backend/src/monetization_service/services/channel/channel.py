@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.monetization_service.models.channel import SubscriberCredit, SubscriberEarn
 from src.monetization_service.queries.credit import user_in_sub_credit, update_sub_credit
 from src.monetization_service.queries.table import insert_to_table_by_model
-from src.monetization_service.queries.users import user_exists, user_ratio, user_num_limit
+from src.monetization_service.queries.users import user_exists, user_ratio, user_num_limit, user_subscriber_privileges
 from src.monetization_service.schemas.api.v1.channel import ChannelIn, ChannelSubIn
 from src.monetization_service.queries.channel import (
     add_channel, deselect_channels, get_channel_list, channel_isvalid, select_channel, channel_exists, fetch_channels
@@ -166,6 +166,18 @@ class ChannelService:
         result_list = list(result_dict.values())
         data = [{"channel_id": str(uid), "channel_link": link} for uid, link, email in result_list]
         return True, data
+
+    @staticmethod
+    async def user_subscriber_privileges(session: AsyncSession, user_email: str):
+        query = user_exists(user_email)
+        result = await session.execute(query)
+        result = result.one_or_none()
+        if not result:
+            return False, "Invalid user_email"
+        query = user_subscriber_privileges(user_email)
+        result = await session.execute(query)
+        result = result.all()
+        return True, result[0][0][0]
 
 
 @cache
