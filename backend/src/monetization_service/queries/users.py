@@ -112,3 +112,20 @@ def user_watch_privileges(user_email: str):
         .where(User.email == user_email)
     )
     return query
+
+
+def user_subscriber_privileges(user_email: str):
+    query = (
+        select(
+            func.json_agg(
+                func.json_build_object(
+                    'user_type', utc.user_type_name,
+                    'subscriber_ratio', utc.subscriber_ratio,
+                    'allowed_fetch_channel', utc.fetch_channel,
+                )
+            ).label('privileges')
+        )
+        .join(User, User.user_type == utc.user_type_id)
+        .where(User.email == user_email)
+    )
+    return query

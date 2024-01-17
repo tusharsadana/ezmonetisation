@@ -4,13 +4,6 @@ from datetime import date, timedelta
 from pydantic import Field
 
 
-class TimePeriodEnum(str, Enum):
-    DAY = "DAY"
-    WEEK = "WEEK"
-    MONTH = "MONTH"
-    YEAR = "YEAR"
-
-
 class FrequencySelector(str, Enum):
 
     DAY = "day"
