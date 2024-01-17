@@ -77,7 +77,8 @@ class PaymentService:
                 if len(result):
                     data = result[0]
                     if data[0]:
-                        expiry = data[1] + timedelta(days=30)
+
+                        expiry = max(data[1], datetime.now()) + timedelta(days=30)
                     else:
                         expiry = datetime.now() + timedelta(days=30)
 
