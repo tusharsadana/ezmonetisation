@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 payment_router = APIRouter(
     prefix="/payment",
     tags=["Payment"],
-    # dependencies=[Depends(Authorized(0, 1, 2))],
+    dependencies=[Depends(Authorized(0, 1, 2))],
 )
 
 
