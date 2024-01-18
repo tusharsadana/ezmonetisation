@@ -9,21 +9,22 @@ from src.monetization_service.queries.subscription import user_in_subscription, 
 from src.monetization_service.queries.users import user_exists
 from src.monetization_service.queries.table import insert_to_table_by_model
 
-stripe_secret_key = "sk_test_tR3PYbcVNZZ796tH88S4VQ2u"
-webhook_secret_key = '{{STRIPE_WEBHOOK_SECRET}}'
+stripe_secret_key = "sk_test_51O5OQiSEIqf7sHE30bJtpXq6bgJ3o6lEs6KeZCS3p939KQGVfPL2E2k6vCnOk4Y2AKTplN46uXcQmVpNtwbN85Q9009GM1hFGd"
+webhook_secret_key = 'whsec_da5d42aa77e095210df5014d4a3b0174409a84bbed756bd0eae6e2b1b02b3e1a'
 
 
 class PaymentService:
 
     @staticmethod
-    async def create_checkout_session(price_id: str, quantity: int, success_url: str, cancel_url: str):
+    async def create_checkout_session(price_id: str, quantity: int, success_url: str, cancel_url: str, user_email: str):
         stripe.api_key = stripe_secret_key
         try:
             session = stripe.checkout.Session.create(
                 success_url=success_url,
                 cancel_url=cancel_url,
                 line_items=[{"price": price_id, "quantity": quantity}],
-                mode="payment",
+                mode="subscription",
+                customer_email=user_email
             )
             return True, session.id
 
@@ -44,12 +45,12 @@ class PaymentService:
             return False, str(e)
 
     @staticmethod
-    async def stripe_webhook(session: AsyncSession,user_email: str, request: Request):
-        query = user_exists(user_email)
-        result = await session.execute(query)
-        result = result.one_or_none()
-        if not result:
-            return False, None, "Invalid user_email"
+    async def stripe_webhook(session: AsyncSession, request: Request):
+        # query = user_exists(user_email)
+        # result = await session.execute(query)
+        # result = result.one_or_none()
+        # if not result:
+        #     return False, None, "Invalid user_email"
 
         stripe.api_key = stripe_secret_key
         webhook_secret = webhook_secret_key
@@ -67,17 +68,29 @@ class PaymentService:
             if event_type == 'checkout.session.completed':
                 return True, data, "Checkout session completed"
 
+            elif event['type'] == 'customer.subscription.created':
+                return True, data, "Subscription Created"
+
+            elif event['type'] == 'customer.subscription.updated':
+                return True, data, "Subscription updated"
+
+            elif event['type'] == 'customer.subscription.deleted':
+                return True, data, "Subscription deleted"
+
+            elif event['type'] == 'invoice.created':
+                return True, data, "Invoice created"
+
             elif event_type == 'invoice.paid':
+                user_email = data['object']['customer']
+
                 query = update_user_type(user_email, 2)
                 await session.execute(query)
 
                 query = user_in_subscription(user_email)
                 result = await session.execute(query)
-                result = result.all()
-                if len(result):
-                    data = result[0]
+                data = result.one_or_none()
+                if data:
                     if data[0]:
-
                         expiry = max(data[1], datetime.now()) + timedelta(days=30)
                     else:
                         expiry = datetime.now() + timedelta(days=30)
