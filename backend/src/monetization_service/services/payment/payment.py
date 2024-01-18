@@ -73,11 +73,9 @@ class PaymentService:
 
                 query = user_in_subscription(user_email)
                 result = await session.execute(query)
-                result = result.all()
-                if len(result):
-                    data = result[0]
+                data = result.one_or_none()
+                if data:
                     if data[0]:
-
                         expiry = max(data[1], datetime.now()) + timedelta(days=30)
                     else:
                         expiry = datetime.now() + timedelta(days=30)
