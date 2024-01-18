@@ -66,10 +66,11 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
         query = user_in_subscription(email)
         async with get_session_cm() as session:
             result = await session.execute(query)
-            result = result.one_or_none()
             if result:
-                if result[0]:
-                    if result[1] < datetime.now():
+                result = result.all()
+                data = result[0]
+                if data[0]:
+                    if data[1] < datetime.now():
                         query = update_user_type(email, 1)
                         await session.execute(query)
                         query = subscribe_user(email, False)

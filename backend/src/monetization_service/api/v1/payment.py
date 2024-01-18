@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 # project
 from src.monetization_service.core.db import get_session
+# from src.monetization_service.schemas.api.v1.channel import ChannelIn, ChannelSubIn
 from src.monetization_service.services.auth import Authorized
 
 from src.monetization_service.services.payment.payment import (
@@ -31,11 +32,10 @@ async def create_checkout_session(
         price_id: str,
         success_url: str,
         cancel_url: str,
-        quantity: int,
-        user_email: str,
+        quantity: int = 1,
         service: PaymentService = Depends(get_payment_service),
 ):
-    is_created, content = await service.create_checkout_session(price_id, quantity, success_url, cancel_url, user_email)
+    is_created, content = await service.create_checkout_session(price_id, quantity, success_url, cancel_url)
     if is_created:
         return ORJSONResponse({"sessionId": content}, status_code=status.HTTP_200_OK)
 
@@ -44,12 +44,12 @@ async def create_checkout_session(
 
 @payment_router.post("/stripe-webhook")
 async def webhook_received(
-        # user_email,
+        user_email,
         request: Request,
         service: PaymentService = Depends(get_payment_service),
         session: AsyncSession = Depends(get_session)
 ):
-    success, data, message = await service.stripe_webhook(session, request)
+    success, data, message = await service.stripe_webhook(session, user_email, request)
 
     if success:
         return ORJSONResponse({"message": message, "data": data}, status_code=status.HTTP_200_OK)
