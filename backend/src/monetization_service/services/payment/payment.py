@@ -16,7 +16,12 @@ webhook_secret_key = '{{STRIPE_WEBHOOK_SECRET}}'
 class PaymentService:
 
     @staticmethod
-    async def create_checkout_session(price_id: str, quantity: int, success_url: str, cancel_url: str):
+    async def create_checkout_session(session: AsyncSession, price_id: str, quantity: int, success_url: str, cancel_url: str, user_email: str):
+        query = user_exists(user_email)
+        result = await session.execute(query)
+        result = result.one_or_none()
+        if not result:
+            return False, None, "Invalid user_email"
         stripe.api_key = stripe_secret_key
         try:
             session = stripe.checkout.Session.create(
@@ -24,8 +29,9 @@ class PaymentService:
                 cancel_url=cancel_url,
                 line_items=[{"price": price_id, "quantity": quantity}],
                 mode="payment",
+                customer_email=user_email
             )
-            return True, session.id
+            return True, session.url
 
         except stripe.error.StripeError as e:
             return False, str(e)
@@ -44,13 +50,33 @@ class PaymentService:
             return False, str(e)
 
     @staticmethod
-    async def stripe_webhook(session: AsyncSession,user_email: str, request: Request):
-        query = user_exists(user_email)
-        result = await session.execute(query)
-        result = result.one_or_none()
-        if not result:
-            return False, None, "Invalid user_email"
+    async def handle_payment(session: AsyncSession, user_email: str):
+        query = update_user_type(user_email, 2)
+        await session.execute(query)
 
+        query = user_in_subscription(user_email)
+        result = await session.execute(query)
+        result = result.all()
+        if len(result):
+            data = result[0]
+            if data[0]:
+
+                expiry = max(data[1], datetime.now()) + timedelta(days=30)
+            else:
+                expiry = datetime.now() + timedelta(days=30)
+
+            query = subscribe_user(user_email, True, expiry)
+            await session.execute(query)
+        else:
+            expiry = datetime.now() + timedelta(days=30)
+            insert_query = insert_to_table_by_model(
+                Subscriptions, {"user_email": user_email, "is_subscribed": True, "subscription_expiry": expiry}
+            )
+            await session.execute(insert_query)
+
+        await session.commit()
+
+    async def stripe_webhook(self, session: AsyncSession, request: Request):
         stripe.api_key = stripe_secret_key
         webhook_secret = webhook_secret_key
         try:
@@ -63,36 +89,14 @@ class PaymentService:
 
             data = event['data']
             event_type = event['type']
+            user_email = data['object']['customer_email']
 
             if event_type == 'checkout.session.completed':
+                await self.handle_payment(session, user_email)
                 return True, data, "Checkout session completed"
 
             elif event_type == 'invoice.paid':
-                query = update_user_type(user_email, 2)
-                await session.execute(query)
-
-                query = user_in_subscription(user_email)
-                result = await session.execute(query)
-                result = result.all()
-                if len(result):
-                    data = result[0]
-                    if data[0]:
-
-                        expiry = max(data[1], datetime.now()) + timedelta(days=30)
-                    else:
-                        expiry = datetime.now() + timedelta(days=30)
-
-                    query = subscribe_user(user_email, True, expiry)
-                    await session.execute(query)
-                else:
-                    expiry = datetime.now() + timedelta(days=30)
-                    insert_query = insert_to_table_by_model(
-                        Subscriptions, {"user_email": user_email, "is_subscribed": True, "subscription_expiry": expiry}
-                    )
-                    await session.execute(insert_query)
-
-                await session.commit()
-
+                await self.handle_payment(session, user_email)
                 return True, data, "Invoice paid"
 
             elif event_type == 'invoice.payment_failed':
