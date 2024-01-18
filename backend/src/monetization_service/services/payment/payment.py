@@ -9,7 +9,7 @@ from src.monetization_service.queries.subscription import user_in_subscription, 
 from src.monetization_service.queries.users import user_exists
 from src.monetization_service.queries.table import insert_to_table_by_model
 
-stripe_secret_key = "sk_test_tR3PYbcVNZZ796tH88S4VQ2u"
+stripe_secret_key = "sk_test_51OZXAESANu26uHfWsceZDsneu3MFhcuAiewyDtjcYVThf2IFyPbAWaEgD13xBQWZCqOcEgGivmHdY3l7segAds3z00qTXzAwga"
 webhook_secret_key = '{{STRIPE_WEBHOOK_SECRET}}'
 
 

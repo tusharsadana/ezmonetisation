@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 # project
 from src.monetization_service.core.db import get_session
-# from src.monetization_service.schemas.api.v1.channel import ChannelIn, ChannelSubIn
+
 from src.monetization_service.services.auth import Authorized
 
 from src.monetization_service.services.payment.payment import (
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 payment_router = APIRouter(
     prefix="/payment",
     tags=["Payment"],
-    dependencies=[Depends(Authorized(0, 1, 2))],
+    # dependencies=[Depends(Authorized(0, 1, 2))],
 )
 
 
