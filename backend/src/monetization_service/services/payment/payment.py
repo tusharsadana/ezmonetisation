@@ -28,10 +28,10 @@ class PaymentService:
                 success_url=success_url,
                 cancel_url=cancel_url,
                 line_items=[{"price": price_id, "quantity": quantity}],
-                mode="payment",
+                mode="subscription",
                 customer_email=user_email
             )
-            return True, session.url
+            return True, session.id
 
         except stripe.error.StripeError as e:
             return False, str(e)
@@ -56,9 +56,8 @@ class PaymentService:
 
         query = user_in_subscription(user_email)
         result = await session.execute(query)
-        result = result.all()
-        if len(result):
-            data = result[0]
+        data = result.one_or_none
+        if data:
             if data[0]:
 
                 expiry = max(data[1], datetime.now()) + timedelta(days=30)
