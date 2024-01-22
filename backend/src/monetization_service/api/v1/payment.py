@@ -46,12 +46,11 @@ async def create_checkout_session(
 
 @payment_router.post("/stripe-webhook")
 async def webhook_received(
-        user_email,
         request: Request,
         service: PaymentService = Depends(get_payment_service),
         session: AsyncSession = Depends(get_session)
 ):
-    success, data, message = await service.stripe_webhook(session, user_email, request)
+    success, data, message = await service.stripe_webhook(session, request)
 
     if success:
         return ORJSONResponse({"message": message, "data": data}, status_code=status.HTTP_200_OK)

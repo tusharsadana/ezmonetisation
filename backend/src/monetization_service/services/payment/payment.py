@@ -15,6 +15,9 @@ webhook_secret_key = '{{STRIPE_WEBHOOK_SECRET}}'
 
 class PaymentService:
 
+    def __init__(self):
+        pass
+
     @staticmethod
     async def create_checkout_session(session: AsyncSession, price_id: str, quantity: int, success_url: str, cancel_url: str, user_email: str):
         query = user_exists(user_email)
