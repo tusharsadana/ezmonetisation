@@ -59,7 +59,7 @@ class PaymentService:
 
         query = user_in_subscription(user_email)
         result = await session.execute(query)
-        data = result.one_or_none
+        data = result.one_or_none()
         if data:
             if data[0]:
 
@@ -72,7 +72,7 @@ class PaymentService:
         else:
             expiry = datetime.now() + timedelta(days=30)
             insert_query = insert_to_table_by_model(
-                Subscriptions, {"user_email": user_email, "is_subscribed": True, "subscription_expiry": expiry}
+                Subscriptions, {"user_email": user_email, "is_subscribed": True, "subscription_expiry": expiry, "subscription_start": datetime.now()}
             )
             await session.execute(insert_query)
 

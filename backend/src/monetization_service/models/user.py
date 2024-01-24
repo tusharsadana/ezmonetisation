@@ -162,8 +162,13 @@ class Subscriptions(IdMixin, TimeMixin, Base):
         comment="Paid user or not",
         nullable=False,
     )
+    subscription_start = Column(
+        DateTime,
+        comment="Date-Time when the subscription started",
+        nullable=False,
+    )
     subscription_expiry = Column(
         DateTime,
-        comment="Date-Time o which the subscription expires",
+        comment="Date-Time on which the subscription expires",
         nullable=False,
     )
