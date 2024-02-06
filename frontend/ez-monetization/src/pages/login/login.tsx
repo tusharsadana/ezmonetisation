@@ -18,8 +18,12 @@ import { AuthContext } from "../../contexts/auth.context";
 import { ISignIn } from "../../models/auth.model";
 import { toast } from "react-toastify";
 import theme from "../../theme/ThemeProvider";
+import ReactGA from "react-ga4";
+
+ReactGA.initialize("G-LVLTQWP613");
 
 export default function Login(): JSX.Element {
+      
     const [inputState, setInputState] = useState<ISignIn>({
         email: "",
         password: "",
@@ -40,6 +44,11 @@ export default function Login(): JSX.Element {
             .then((res) => {
                 login(res.access, res.refresh, email);
                 toast.success("Logged in successfully");
+
+                ReactGA.event({
+                    category: "USer",
+                    action: "Logged In"
+                });
             })
             .catch((err) => {
                 console.log(err);
