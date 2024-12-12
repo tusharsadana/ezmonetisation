@@ -81,3 +81,4 @@ Wand==0.6.11
 wrapt==1.14.1
 yarl==1.8.2
 matplotlib==3.8.2
+stripe==7.11.0

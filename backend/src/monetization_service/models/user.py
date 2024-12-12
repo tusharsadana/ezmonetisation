@@ -1,5 +1,5 @@
 # thirdparty
-from sqlalchemy import Boolean, Column, String, Integer, Float, ForeignKey
+from sqlalchemy import Boolean, Column, String, Integer, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import PasswordType
 
@@ -61,6 +61,7 @@ class User(TimeMixin, Base):
     watch_hour_credit = relationship("WatchHourCredit")
     subscriber_credit = relationship("SubscriberCredit")
     verification_token = relationship("VerificationToken")
+    subscriptions = relationship("Subscriptions")
 
 
 class VerificationToken(IdMixin,TimeMixin, Base):
@@ -71,7 +72,7 @@ class VerificationToken(IdMixin,TimeMixin, Base):
     user_email = Column(
         String,
         ForeignKey("user.email"),
-        comment="User email of the linked channel",
+        comment="User email",
         nullable=False,
     )
     token = Column(
@@ -141,3 +142,28 @@ class UserTypeConstants(IdMixin, TimeMixin, Base):
     )
     
     user = relationship("User")
+
+
+class Subscriptions(IdMixin, TimeMixin, Base):
+    """Table for storing user subscriptions"""
+
+    __tablename__ = "subscriptions"
+
+    user = relationship("User", back_populates="subscriptions")
+    user_email = Column(
+        String,
+        ForeignKey("user.email"),
+        comment="User email",
+        nullable=False,
+    )
+
+    is_subscribed = Column(
+        Boolean,
+        comment="Paid user or not",
+        nullable=False,
+    )
+    subscription_expiry = Column(
+        DateTime,
+        comment="Date-Time o which the subscription expires",
+        nullable=False,
+    )

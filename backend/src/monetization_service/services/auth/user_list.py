@@ -12,15 +12,18 @@ from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from datetime import datetime, timedelta
 
 # project
 from src.common.utils import SingletonWithArgs
 from src.monetization_service.core.db import get_session_cm
-from src.monetization_service.models.user import User
+from src.monetization_service.models.user import User, Subscriptions
+from src.monetization_service.queries.table import insert_to_table_by_model
 from src.monetization_service.queries.users import (
     update_user_password, add_new_user_query, user_isactive, get_verification_token, add_verification_token,
-    token_isvalid, activate_user, delete_user
+    token_isvalid, activate_user, user_exists
 )
+from src.monetization_service.queries.subscription import user_in_subscription, update_user_type, subscribe_user
 from src.monetization_service.schemas.api.v1.auth import UserSchema, UserSignUp
 from src.monetization_service.services.auth.base import BaseAuth
 
@@ -38,7 +41,7 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
 
         async with get_session_cm() as session:
             query = select(User).where(
-                User.email == email, User.is_active.is_(True)
+                User.email == email
             )
             result = await session.execute(query)
             try:
@@ -55,11 +58,36 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
     async def login(
         self, email: str, password: str
     ) -> tuple[bool, UserSchema | None]:
+
         """
         Downloads file with list with users and checks if the
         person is in it
         """
+        query = user_in_subscription(email)
+        async with get_session_cm() as session:
+            result = await session.execute(query)
+            result = result.one_or_none()
+            if result:
+                if result[0]:
+                    if result[1] < datetime.now():
+                        query = update_user_type(email, 1)
+                        await session.execute(query)
+                        query = subscribe_user(email, False)
+                        await session.execute(query)
+                        await session.commit()
+
         check, results = await self.check_user(email=email, password=password)
+        if check:
+            async with get_session_cm() as session:
+                query = user_isactive(email)
+                result = await session.execute(query)
+                result = result.all()
+
+                if not result[0][0]:
+                    return False, "Your account is yet to be verified. Please verify your account."
+
+        else:
+            return False, "User email or password incorrect"
         return check, results
 
     def __generate_new_password(self, length) -> str:
@@ -167,17 +195,9 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
                 server.sendmail(sender_email, receiver_email, message.as_string())
 
             except smtplib.SMTPRecipientsRefused:
-                async with get_session_cm() as session:
-                    session: AsyncSession
-                    user_query, verification_token_query = delete_user(user_email)
-                    await session.execute(verification_token_query)
-                    await session.execute(user_query)
-                    await session.commit()
-                return False, "Invalid email. Please sign up using a different email"
+                pass
 
         return True, None
-
-
 
     async def verify_user(
         self, token: str
@@ -197,6 +217,21 @@ class UserListAuth(BaseAuth, metaclass=SingletonWithArgs):
             await session.commit()
 
             return True, "Your email has been verified"
+
+    async def user_details(
+        self, user_email: str
+    ):
+        async with get_session_cm() as session:
+            session: AsyncSession
+            query = user_exists(user_email)
+            result = await session.execute(query)
+            result = result.all()
+            if len(result):
+                data = {"first_name": result[0][0], "last_name": result[0][1]}
+                return True, data
+            else:
+                return False, "Invalid user_email"
+
 
 
 
